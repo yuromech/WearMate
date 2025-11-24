@@ -1,0 +1,294 @@
+﻿@model WearMate.Shared.DTOs.Products.CreateProductDto
+@{
+    ViewData["Title"] = "Create Product";
+    var categories = ViewBag.Categories as List<WearMate.Shared.DTOs.Products.CategoryDto> ?? new();
+    var brands = ViewBag.Brands as List<WearMate.Shared.DTOs.Products.BrandDto> ?? new();
+}
+
+<h2><i class="bi bi-plus-circle"></i> Create New Product</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" id="productForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Product Name *</label>
+                        <input asp-for="Name" class="form-control" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label">Slug *</label>
+                        <div class="input-group">
+                            <input asp-for="Slug" class="form-control" required />
+                            <button type="button" id="generateFromImage" class="btn btn-outline-secondary">From image</button>
+                        </div>
+                        <small class="form-text text-muted">URL-friendly name (e.g., ao-thun-basic). You can auto-generate from image filename or edit manually.</small>
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Sku" class="form-label">SKU</label>
+                        <input asp-for="Sku" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label">Category</label>
+                        <select asp-for="CategoryId" class="form-select">
+                            <option value="">-- Select Category --</option>
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="BrandId" class="form-label">Brand</label>
+                        <select asp-for="BrandId" class="form-select">
+                            <option value="">-- Select Brand --</option>
+                            @foreach (var brand in brands)
+                            {
+                                <option value="@brand.Id">@brand.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="BasePrice" class="form-label">Base Price *</label>
+                        <input asp-for="BasePrice" class="form-control" type="number" step="1000" required />
+                        <span asp-validation-for="BasePrice" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SalePrice" class="form-label">Sale Price</label>
+                        <input asp-for="SalePrice" class="form-control" type="number" step="1000" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortDescription" class="form-label">Short Description</label>
+                        <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-check mb-2">
+                        <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsFeatured" class="form-check-label">Featured Product</label>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                        <label asp-for="IsActive" class="form-check-label">Active</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label">Full Description</label>
+                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+            </div>
+
+            <hr />
+
+            <!-- Variants Section -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="form-label mb-0">Product Variants</label>
+                    <button type="button" id="addVariantBtn" class="btn btn-sm btn-success">
+                        <i class="bi bi-plus-circle"></i> Add Variant
+                    </button>
+                </div>
+                <small class="form-text text-muted d-block mb-2">Add size/color variants for this product. Each variant will have its own SKU.</small>
+                <div id="variantsContainer" class="border rounded p-3 bg-light">
+                    <div id="variantsList"></div>
+                    <div id="noVariantsMessage" class="text-muted text-center py-3">
+                        No variants added yet. Click "Add Variant" to create one.
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="mb-3">
+                <label class="form-label">Product Images</label>
+                <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple />
+                <small class="form-text text-muted">You can upload multiple images. The first image will be used as thumbnail if supported.</small>
+                <div id="preview" class="d-flex gap-2 mt-2"></div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Save Product
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function slugify(text) {
+            return text
+                .toString()
+                .toLowerCase()
+                .normalize('NFKD')
+                .replace(/\p{Diacritic}/gu, '')
+                .replace(/[^a-z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-');
+        }
+
+        const nameInput = document.querySelector('input[name="Name"]');
+        const slugInput = document.querySelector('input[name="Slug"]');
+        const imagesInput = document.getElementById('images');
+        const preview = document.getElementById('preview');
+        const generateBtn = document.getElementById('generateFromImage');
+
+        nameInput?.addEventListener('input', function(e) {
+            slugInput.value = slugify(e.target.value || '');
+        });
+
+        imagesInput?.addEventListener('change', function(e) {
+            preview.innerHTML = '';
+            const files = Array.from(e.target.files || []);
+            files.forEach(file => {
+                const url = URL.createObjectURL(file);
+                const img = document.createElement('img');
+                img.src = url;
+                img.style.width = '90px';
+                img.style.height = '90px';
+                img.style.objectFit = 'cover';
+                img.className = 'rounded';
+                preview.appendChild(img);
+            });
+
+            // If slug empty, generate from first image filename
+            if (!slugInput.value && files.length > 0) {
+                const firstName = files[0].name.split('.').slice(0, -1).join('.');
+                slugInput.value = slugify(firstName || nameInput.value || '');
+            }
+        });
+
+        generateBtn?.addEventListener('click', function() {
+            const files = Array.from(imagesInput.files || []);
+            if (files.length > 0) {
+                const firstName = files[0].name.split('.').slice(0, -1).join('.');
+                slugInput.value = slugify(firstName || nameInput.value || '');
+            }
+        });
+
+        // Variant management
+        let variantCounter = 0;
+        const variantsList = document.getElementById('variantsList');
+        const noVariantsMessage = document.getElementById('noVariantsMessage');
+        const addVariantBtn = document.getElementById('addVariantBtn');
+
+        function updateVariantsVisibility() {
+            const hasVariants = variantsList.children.length > 0;
+            noVariantsMessage.style.display = hasVariants ? 'none' : 'block';
+        }
+
+        function addVariantRow() {
+            const variantId = variantCounter++;
+            const variantRow = document.createElement('div');
+            variantRow.className = 'variant-row mb-3 p-3 border rounded bg-white';
+            variantRow.dataset.variantId = variantId;
+            variantRow.innerHTML = `
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">SKU</label>
+                        <input type="text" class="form-control variant-sku" placeholder="e.g., PROD-RED-M" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Size</label>
+                        <input type="text" class="form-control variant-size" placeholder="e.g., M, L, XL" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Color</label>
+                        <input type="text" class="form-control variant-color" placeholder="e.g., Red, Blue" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Price Adj.</label>
+                        <input type="number" class="form-control variant-price" value="0" step="1000" />
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-sm btn-danger remove-variant-btn w-100">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            variantsList.appendChild(variantRow);
+
+            // Add remove handler
+            variantRow.querySelector('.remove-variant-btn').addEventListener('click', function() {
+                variantRow.remove();
+                updateVariantsVisibility();
+            });
+
+            updateVariantsVisibility();
+        }
+
+        addVariantBtn.addEventListener('click', addVariantRow);
+
+        // Form submission - collect variants
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            // Remove any existing variant inputs
+            document.querySelectorAll('input[name^="Variants"]').forEach(input => input.remove());
+
+            // Collect variant data
+            const variantRows = document.querySelectorAll('.variant-row');
+            variantRows.forEach((row, index) => {
+                const sku = row.querySelector('.variant-sku').value;
+                const size = row.querySelector('.variant-size').value;
+                const color = row.querySelector('.variant-color').value;
+                const priceAdj = row.querySelector('.variant-price').value || '0';
+
+                if (sku || size || color) {
+                    // Create hidden inputs for each variant
+                    const form = e.target;
+                    
+                    const skuInput = document.createElement('input');
+                    skuInput.type = 'hidden';
+                    skuInput.name = `Variants[${index}].Sku`;
+                    skuInput.value = sku || '';
+                    form.appendChild(skuInput);
+
+                    const sizeInput = document.createElement('input');
+                    sizeInput.type = 'hidden';
+                    sizeInput.name = `Variants[${index}].Size`;
+                    sizeInput.value = size || '';
+                    form.appendChild(sizeInput);
+
+                    const colorInput = document.createElement('input');
+                    colorInput.type = 'hidden';
+                    colorInput.name = `Variants[${index}].Color`;
+                    colorInput.value = color || '';
+                    form.appendChild(colorInput);
+
+                    const priceInput = document.createElement('input');
+                    priceInput.type = 'hidden';
+                    priceInput.name = `Variants[${index}].PriceAdjustment`;
+                    priceInput.value = priceAdj;
+                    form.appendChild(priceInput);
+
+                    const activeInput = document.createElement('input');
+                    activeInput.type = 'hidden';
+                    activeInput.name = `Variants[${index}].IsActive`;
+                    activeInput.value = 'true';
+                    form.appendChild(activeInput);
+                }
+            });
+        });
+
+        updateVariantsVisibility();
+    </script>
+}

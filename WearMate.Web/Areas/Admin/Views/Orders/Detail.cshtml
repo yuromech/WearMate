@@ -1,0 +1,227 @@
+﻿@model WearMate.Shared.DTOs.Orders.OrderDto
+@{
+    ViewData["Title"] = $"Order #{Model.OrderNumber}";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-receipt"></i> Order #@Model.OrderNumber</h2>
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Orders
+    </a>
+</div>
+
+<div class="row">
+    <!-- Order Info -->
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Order Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-md-3"><strong>Order Number:</strong></div>
+                    <div class="col-md-9"><code>@Model.OrderNumber</code></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3"><strong>Date:</strong></div>
+                    <div class="col-md-9">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3"><strong>Status:</strong></div>
+                    <div class="col-md-9">
+                        @switch (Model.Status.ToLower())
+                        {
+                            case "pending":
+                                <span class="badge bg-warning">Pending</span>
+                                break;
+                            case "confirmed":
+                                <span class="badge bg-info">Confirmed</span>
+                                break;
+                            case "processing":
+                                <span class="badge bg-primary">Processing</span>
+                                break;
+                            case "shipping":
+                                <span class="badge bg-primary">Shipping</span>
+                                break;
+                            case "delivered":
+                                <span class="badge bg-success">Delivered</span>
+                                break;
+                            case "cancelled":
+                                <span class="badge bg-danger">Cancelled</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@Model.Status</span>
+                                break;
+                        }
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-md-3"><strong>Payment Method:</strong></div>
+                    <div class="col-md-9">
+                        <span class="badge bg-secondary">@Model.PaymentMethod.ToUpper()</span>
+                        <span class="badge @(Model.PaymentStatus == "paid" ? "bg-success" : "bg-warning")">
+                            @Model.PaymentStatus
+                        </span>
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Note))
+                {
+                    <div class="row mb-2">
+                        <div class="col-md-3"><strong>Customer Note:</strong></div>
+                        <div class="col-md-9">@Model.Note</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.CancelledReason))
+                {
+                    <div class="row mb-2">
+                        <div class="col-md-3"><strong>Cancelled Reason:</strong></div>
+                        <div class="col-md-9"><span class="text-danger">@Model.CancelledReason</span></div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Shipping Info -->
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Shipping Information</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>@Model.ShippingFullName</strong></p>
+                <p class="mb-1">📞 @Model.ShippingPhone</p>
+                <p class="mb-1">📍 @Model.ShippingAddress</p>
+                <p class="mb-0">
+                    @if (!string.IsNullOrEmpty(Model.ShippingWard))
+                    {
+                        <text>@Model.ShippingWard, </text>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ShippingDistrict))
+                    {
+                        <text>@Model.ShippingDistrict, </text>
+                    }
+                    @Model.ShippingCity
+                </p>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Order Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Variant</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@item.ProductName</strong><br>
+                                        <small class="text-muted">@item.Sku</small>
+                                    </td>
+                                    <td>@item.VariantInfo</td>
+                                    <td>@item.Quantity</td>
+                                    <td>@item.UnitPrice.ToString("N0") đ</td>
+                                    <td><strong>@item.TotalPrice.ToString("N0") đ</strong></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Subtotal:</strong></td>
+                                <td><strong>@Model.Subtotal.ToString("N0") đ</strong></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>Shipping Fee:</strong></td>
+                                <td><strong>@Model.ShippingFee.ToString("N0") đ</strong></td>
+                            </tr>
+                            @if (Model.DiscountAmount > 0)
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-end"><strong>Discount:</strong></td>
+                                    <td><strong class="text-danger">-@Model.DiscountAmount.ToString("N0") đ</strong></td>
+                                </tr>
+                            }
+                            <tr class="table-active">
+                                <td colspan="4" class="text-end"><strong>TOTAL:</strong></td>
+                                <td><strong class="fs-5">@Model.Total.ToString("N0") đ</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">Update Status</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="UpdateStatus" method="post">
+                    <input type="hidden" name="id" value="@Model.Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">New Status</label>
+                        <select name="status" class="form-select" required>
+                            <option value="">-- Select Status --</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="processing">Processing</option>
+                            <option value="shipping">Shipping</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Note (optional)</label>
+                        <textarea name="note" class="form-control" rows="2"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-circle"></i> Update Status
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        @if (Model.Status != "cancelled" && Model.Status != "delivered")
+        {
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">Cancel Order</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Cancel" method="post" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Reason *</label>
+                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-x-circle"></i> Cancel Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

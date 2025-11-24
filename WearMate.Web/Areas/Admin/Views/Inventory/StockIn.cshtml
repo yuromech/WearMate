@@ -1,0 +1,73 @@
+﻿@model WearMate.Shared.DTOs.Inventory.StockInDto
+@{
+    ViewData["Title"] = "Stock In";
+    var warehouses = ViewBag.Warehouses as List<WearMate.Shared.DTOs.Inventory.WarehouseDto> ?? new();
+    var productsResult = ViewBag.Products as WearMate.Shared.DTOs.Common.PaginatedResult<WearMate.Shared.DTOs.Products.ProductDto>;
+}
+
+<h2><i class="bi bi-plus-circle"></i> Stock In</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="StockIn" method="post">
+            <div class="mb-3">
+                <label asp-for="WarehouseId" class="form-label">Warehouse *</label>
+                <select asp-for="WarehouseId" class="form-select" required>
+                    <option value="">-- Select Warehouse --</option>
+                    @foreach (var warehouse in warehouses)
+                    {
+                        <option value="@warehouse.Id">@warehouse.Name (@warehouse.Code)</option>
+                    }
+                </select>
+                <span asp-validation-for="WarehouseId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ProductVariantId" class="form-label">Product Variant *</label>
+                <select asp-for="ProductVariantId" class="form-select" required>
+                    <option value="">-- Select Product Variant --</option>
+                    @if (productsResult?.Items != null)
+                    {
+                        @foreach (var product in productsResult.Items)
+                        {
+                            @if (product.Variants.Any())
+                            {
+                                @foreach (var variant in product.Variants)
+                                {
+                                    <option value="@variant.Id">
+                                        @product.Name - @variant.Size @variant.Color (@variant.Sku)
+                                    </option>
+                                }
+                            }
+                        }
+                    }
+                </select>
+                <span asp-validation-for="ProductVariantId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Quantity" class="form-label">Quantity *</label>
+                <input asp-for="Quantity" class="form-control" type="number" min="1" required />
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Note" class="form-label">Note</label>
+                <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Stock In
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

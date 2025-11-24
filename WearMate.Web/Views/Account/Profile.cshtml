@@ -1,0 +1,56 @@
+﻿@model WearMate.Shared.DTOs.Auth.UserSessionDto
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <h2 class="mb-4">My Profile</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Account Information</h5>
+
+                <div class="row mb-3">
+                    <div class="col-md-4"><strong>Email:</strong></div>
+                    <div class="col-md-8">@Model.Email</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4"><strong>Full Name:</strong></div>
+                    <div class="col-md-8">@Model.FullName</div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                {
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Phone:</strong></div>
+                        <div class="col-md-8">@Model.Phone</div>
+                    </div>
+                }
+
+                <div class="row mb-3">
+                    <div class="col-md-4"><strong>Role:</strong></div>
+                    <div class="col-md-8"><span class="badge bg-primary">@Model.Role</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Quick Links</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <a asp-controller="Orders" asp-action="MyOrders">My Orders</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">Change Password</a>
+                    </li>
+                    <li class="list-group-item">
+                        <a href="#">Update Profile</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

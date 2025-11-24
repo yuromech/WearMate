@@ -1,0 +1,110 @@
+@using WearMate.Web.Models.ViewModels
+@model InventoryLogsViewModel
+@{
+    ViewData["Title"] = "Inventory Logs";
+}
+
+<h2><i class="bi bi-clock-history"></i> Inventory Logs</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form asp-action="Logs" method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Filter by Warehouse</label>
+                <select name="warehouseId" class="form-select">
+                    <option value="">All Warehouses</option>
+                    @foreach (var warehouse in Model.Warehouses)
+                    {
+                        <option value="@warehouse.Id" selected="@(Model.SelectedWarehouseId == warehouse.Id)">
+                            @warehouse.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-filter"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Date/Time</th>
+                        <th>Type</th>
+                        <th>Warehouse</th>
+                        <th>Product Variant</th>
+                        <th>Quantity</th>
+                        <th>Before ? After</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Logs.Any())
+                    {
+                        @foreach (var log in Model.Logs)
+                        {
+                            <tr>
+                                <td>@log.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td>
+                                    @switch (log.Type.ToLower())
+                                    {
+                                        case "in":
+                                            <span class="badge bg-success">Stock In</span>
+                                            break;
+                                        case "out":
+                                            <span class="badge bg-warning">Stock Out</span>
+                                            break;
+                                        case "transfer":
+                                            <span class="badge bg-info">Transfer</span>
+                                            break;
+                                        case "adjustment":
+                                            <span class="badge bg-secondary">Adjustment</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-dark">@log.Type</span>
+                                            break;
+                                    }
+                                </td>
+                                <td><code>@log.WarehouseId</code></td>
+                                <td><code>@log.ProductVariantId</code></td>
+                                <td>
+                                    <strong class="@(log.Quantity > 0 ? "text-success" : "text-danger")">
+                                        @(log.Quantity > 0 ? "+" : "")@log.Quantity
+                                    </strong>
+                                </td>
+                                <td>
+                                    <span class="text-muted">@log.BeforeQuantity</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                    <strong>@log.AfterQuantity</strong>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.Note))
+                                    {
+                                        <small>@log.Note</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center">No logs found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

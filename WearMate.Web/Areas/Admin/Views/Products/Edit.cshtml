@@ -1,0 +1,382 @@
+﻿@model WearMate.Shared.DTOs.Products.CreateProductDto
+@{
+    ViewData["Title"] = "Edit Product";
+    var productId = (ViewBag.ProductId as Guid?) ?? Guid.Empty;
+    var categories = ViewBag.Categories as List<WearMate.Shared.DTOs.Products.CategoryDto> ?? new();
+    var brands = ViewBag.Brands as List<WearMate.Shared.DTOs.Products.BrandDto> ?? new();
+}
+
+<h2><i class="bi bi-pencil"></i> Edit Product</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <form asp-action="Edit" asp-route-id="@productId" method="post">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="Name" class="form-label">Product Name *</label>
+                                <input asp-for="Name" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Slug" class="form-label">Slug *</label>
+                                <input asp-for="Slug" class="form-control" required />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="Sku" class="form-label">SKU</label>
+                                <input asp-for="Sku" class="form-control" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="CategoryId" class="form-label">Category</label>
+                                <select asp-for="CategoryId" class="form-select">
+                                    <option value="">-- Select Category --</option>
+                                    @foreach (var cat in categories)
+                                    {
+                                        <option value="@cat.Id">@cat.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="BrandId" class="form-label">Brand</label>
+                                <select asp-for="BrandId" class="form-select">
+                                    <option value="">-- Select Brand --</option>
+                                    @foreach (var brand in brands)
+                                    {
+                                        <option value="@brand.Id">@brand.Name</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label asp-for="BasePrice" class="form-label">Base Price *</label>
+                                <input asp-for="BasePrice" class="form-control" type="number" step="1000" required />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="SalePrice" class="form-label">Sale Price</label>
+                                <input asp-for="SalePrice" class="form-control" type="number" step="1000" />
+                            </div>
+                            <div class="mb-3">
+                                <label asp-for="ShortDescription" class="form-label">Short Description</label>
+                                <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsFeatured" class="form-check-label">Featured Product</label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Full Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Update Product
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header">Variants
+                <button class="btn btn-sm btn-success float-end" id="addVariantBtn">Add Variant</button>
+            </div>
+            <div class="card-body">
+                <div id="variantsList"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-header">Product Images
+                <label class="btn btn-sm btn-primary float-end mb-0">
+                    <i class="bi bi-upload"></i> Upload
+                    <input type="file" id="uploadFiles" multiple accept="image/*" hidden />
+                </label>
+            </div>
+            <div class="card-body">
+                <div id="thumbnailInfo" class="alert alert-light border d-flex align-items-center gap-2 py-2 px-3 d-none mb-3">
+                </div>
+                <div id="imagesContainer" class="d-flex flex-column gap-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="variantModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="variantModalLabel">Add Variant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="variantSku" class="form-label">SKU *</label>
+                    <input type="text" class="form-control" id="variantSku" required />
+                </div>
+                <div class="mb-3">
+                    <label for="variantSize" class="form-label">Size</label>
+                    <input type="text" class="form-control" id="variantSize" />
+                </div>
+                <div class="mb-3">
+                    <label for="variantColor" class="form-label">Color</label>
+                    <input type="text" class="form-control" id="variantColor" />
+                </div>
+                <div class="mb-3">
+                    <label for="variantPriceAdj" class="form-label">Price Adjustment</label>
+                    <input type="number" class="form-control" id="variantPriceAdj" value="0" step="1000" />
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="variantActive" checked />
+                    <label class="form-check-label" for="variantActive">Active</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveVariantBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <script>
+        const productId = "@productId";
+
+        async function loadImages() {
+            try {
+                const res = await fetch(`/Admin/Products/GetImages?id=${productId}`);
+                if (!res.ok) return;
+                const images = await res.json();
+                if (!Array.isArray(images)) return;
+                const container = document.getElementById('imagesContainer');
+                const thumbInfo = document.getElementById('thumbnailInfo');
+                container.innerHTML = '';
+                thumbInfo?.classList.add('d-none');
+                if (thumbInfo) thumbInfo.innerHTML = '';
+
+                const thumbIndex = images.findIndex(img => img.isThumbnail);
+                if (thumbInfo) {
+                    if (thumbIndex >= 0) {
+                        const th = images[thumbIndex];
+                        thumbInfo.classList.remove('d-none');
+                        thumbInfo.innerHTML = `
+                            <div class="fw-semibold"><i class="bi bi-star-fill text-warning"></i> Thumbnail</div>
+                            <img src="${th.imageUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:6px;border:2px solid #ffc107;" />
+                            <div class="ms-auto text-muted small">Order #${thumbIndex + 1}</div>
+                        `;
+                    } else {
+                        thumbInfo.classList.remove('d-none');
+                        thumbInfo.innerHTML = `<div class="text-muted small">No thumbnail chosen yet.</div>`;
+                    }
+                }
+                
+                images.forEach((img, i) => {
+                    const isTh = img.isThumbnail || false;
+                    const el = document.createElement('div');
+                    el.className = 'd-flex align-items-center gap-2 p-2 border rounded';
+                    el.dataset.id = img.id;
+                    el.style.cursor = 'move';
+                    
+                    el.innerHTML = `
+                        <div class="position-relative">
+                            <img src="${img.imageUrl}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:${isTh?'2px solid #198754':'1px solid #dee2e6'};" />
+                            <span class="badge bg-dark position-absolute" style="top:2px;left:2px;font-size:0.7rem;">#${i + 1}</span>
+                            ${isTh?'<span class="badge bg-success position-absolute" style="top:2px;right:2px;"><i class="bi bi-star-fill"></i></span>':''}
+                        </div>
+                        <div class="flex-grow-1">
+                            <button class="btn btn-sm ${isTh?'btn-success':'btn-outline-secondary'} w-100 mb-1 setThumbBtn" data-id="${img.id}" ${isTh?'disabled':''}>
+                                <i class="bi ${isTh?'bi-star-fill':'bi-star'}"></i> ${isTh?'Thumbnail':'Set Thumbnail'}
+                            </button>
+                            <label class="btn btn-sm btn-outline-primary w-100 mb-0">
+                                <i class="bi bi-arrow-repeat"></i> Replace
+                                <input type="file" class="replaceInput" data-id="${img.id}" accept="image/*" hidden />
+                            </label>
+                        </div>
+                        <button class="btn btn-sm btn-danger deleteImage" data-id="${img.id}"><i class="bi bi-trash"></i></button>
+                    `;
+                    container.appendChild(el);
+                });
+
+                // Re-attach event listeners
+                document.querySelectorAll('.deleteImage').forEach(btn => btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (!confirm('Delete image?')) return;
+                    const r = await fetch(`/api/productimages/${id}`, {method:'DELETE'});
+                    if (r.ok) loadImages();
+                }));
+
+                document.querySelectorAll('.setThumbBtn').forEach(btn => btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const r = await fetch('/api/productimages/thumbnail', {
+                        method:'PUT', 
+                        headers:{'Content-Type':'application/json'}, 
+                        body:JSON.stringify({productId, imageId:id})
+                    });
+                    if (r.ok) loadImages();
+                }));
+
+                document.querySelectorAll('.replaceInput').forEach(inp => inp.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    if (!file.type.startsWith('image/')) { alert('Image files only'); e.target.value=''; return; }
+                    if (file.size > 5*1024*1024) { alert('Max 5MB'); e.target.value=''; return; }
+                    
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    const r = await fetch(`/api/productimages/${e.target.dataset.id}/replace`, {method:'POST', body:fd});
+                    if (r.ok) loadImages();
+                    e.target.value = '';
+                }));
+
+                new Sortable(container, {
+                    animation: 150,
+                    handle: 'img',
+                    onEnd: async () => {
+                        const ordered = Array.from(container.querySelectorAll('[data-id]')).map(x => x.dataset.id);
+                        await fetch('/api/productimages/reorder', {
+                            method:'POST', 
+                            headers:{'Content-Type':'application/json'}, 
+                            body:JSON.stringify({productId, orderedIds:ordered})
+                        });
+                        loadImages();
+                    }
+                });
+            } catch (err) {
+                console.error('Load images error:', err);
+            }
+        }
+
+        document.getElementById('uploadFiles')?.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (!files.length) return;
+            
+            const fd = new FormData();
+            for (const f of files) {
+                if (!f.type.startsWith('image/') || f.size > 5*1024*1024) continue;
+                fd.append('files', f);
+            }
+            fd.append('productId', productId);
+            
+            await fetch('/Admin/Products/UploadImages', {method:'POST', body:fd});
+            loadImages();
+            e.target.value = '';
+        });
+
+        async function loadVariants() {
+            try {
+                const res = await fetch(`/api/productvariants/by-product/${productId}`);
+                if (!res.ok) return;
+                const js = await res.json();
+                const variants = js.data || [];
+                const cont = document.getElementById('variantsList');
+                
+                if (!variants.length) {
+                    cont.innerHTML = '<p class="text-muted text-center">No variants</p>';
+                    return;
+                }
+                
+                cont.innerHTML = '';
+                variants.forEach(v => {
+                    const el = document.createElement('div');
+                    el.className = 'd-flex justify-content-between align-items-center p-2 border rounded mb-2';
+                    el.innerHTML = `
+                        <div>
+                            <strong>${v.sku}</strong> 
+                            <span class="badge bg-secondary">${v.size||'N/A'}</span> 
+                            <span class="badge bg-info">${v.color||'N/A'}</span>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary editVariant" 
+                                data-id="${v.id}" 
+                                data-sku="${v.sku}" 
+                                data-size="${v.size||''}" 
+                                data-color="${v.color||''}" 
+                                data-price="${v.priceAdjustment}" 
+                                data-active="${v.isActive}">Edit</button> 
+                            <button class="btn btn-sm btn-outline-danger deleteVariant" data-id="${v.id}">Delete</button>
+                        </div>
+                    `;
+                    cont.appendChild(el);
+                });
+
+                document.querySelectorAll('.deleteVariant').forEach(btn => btn.addEventListener('click', async (e) => {
+                    if (!confirm('Delete?')) return;
+                    const r = await fetch(`/api/productvariants/${e.target.dataset.id}`, {method:'DELETE'});
+                    if (r.ok) loadVariants();
+                }));
+
+                document.querySelectorAll('.editVariant').forEach(btn => btn.addEventListener('click', (e) => {
+                    const b = e.target;
+                    editingVariantId = b.dataset.id;
+                    document.getElementById('variantSku').value = b.dataset.sku;
+                    document.getElementById('variantSize').value = b.dataset.size;
+                    document.getElementById('variantColor').value = b.dataset.color;
+                    document.getElementById('variantPriceAdj').value = b.dataset.price;
+                    document.getElementById('variantActive').checked = b.dataset.active==='true';
+                    document.getElementById('variantModalLabel').textContent = 'Edit Variant';
+                    new bootstrap.Modal(document.getElementById('variantModal')).show();
+                }));
+            } catch (err) {
+                console.error('Load variants error:', err);
+            }
+        }
+
+        let editingVariantId = null;
+        document.getElementById('addVariantBtn')?.addEventListener('click', () => { 
+            editingVariantId=null; 
+            document.getElementById('variantSku').value=''; 
+            document.getElementById('variantSize').value=''; 
+            document.getElementById('variantColor').value=''; 
+            document.getElementById('variantPriceAdj').value='0'; 
+            document.getElementById('variantActive').checked=true; 
+            document.getElementById('variantModalLabel').textContent='Add Variant'; 
+            new bootstrap.Modal(document.getElementById('variantModal')).show(); 
+        });
+
+        document.getElementById('saveVariantBtn')?.addEventListener('click', async () => {
+            const payload = {
+                productId, 
+                sku:document.getElementById('variantSku').value, 
+                size:document.getElementById('variantSize').value, 
+                color:document.getElementById('variantColor').value, 
+                priceAdjustment:parseFloat(document.getElementById('variantPriceAdj').value)||0, 
+                isActive:document.getElementById('variantActive').checked
+            };
+            
+            if (!payload.sku) { alert('SKU required'); return; }
+            
+            let url = editingVariantId ? `/api/productvariants/${editingVariantId}` : '/api/productvariants';
+            if (editingVariantId) payload.id = editingVariantId;
+            
+            const res = await fetch(url, {
+                method:editingVariantId?'PUT':'POST', 
+                headers:{'Content-Type':'application/json'}, 
+                body:JSON.stringify(payload)
+            });
+            
+            if (res.ok) { 
+                bootstrap.Modal.getInstance(document.getElementById('variantModal')).hide(); 
+                loadVariants(); 
+            }
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => { loadImages(); loadVariants(); });
+        } else {
+            loadImages();
+            loadVariants();
+        }
+    </script>
+}

@@ -1,0 +1,101 @@
+﻿@model List<WearMate.Shared.DTOs.Products.BrandDto>
+@{
+    ViewData["Title"] = "Brands Management";
+    var includeInactive = ViewBag.IncludeInactive ?? false;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-award"></i> Brands</h2>
+    <div class="d-flex gap-2">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="showInactiveBrands"
+                   @(includeInactive ? "checked" : "")
+                   onchange="window.location.href='@Url.Action("Index")?includeInactive=' + this.checked">
+            <label class="form-check-label" for="showInactiveBrands">
+                Show Inactive
+            </label>
+        </div>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add Brand
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Slug</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        @foreach (var brand in Model)
+                        {
+                            <tr class="@(!brand.IsActive ? "table-secondary" : "")">
+                                <td><strong>@brand.Name</strong></td>
+                                <td><code>@brand.Slug</code></td>
+                                <td>
+                                    @if (brand.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    }
+                                </td>
+                                <td>@brand.CreatedAt.ToString("yyyy-MM-dd")</td>
+                                <td class="table-actions">
+                                    @if (brand.IsActive)
+                                    {
+                                        <form asp-action="Deactivate" asp-route-id="@brand.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('Deactivate this brand? Products can remain but the brand will be hidden.');">
+                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                <i class="bi bi-slash-circle"></i> Deactivate
+                                            </button>
+                                        </form>
+                                        <form asp-action="Delete" asp-route-id="@brand.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('Permanently delete this brand? This cannot be undone.');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Reactivate" asp-route-id="@brand.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('Reactivate this brand?');">
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="bi bi-arrow-clockwise"></i> Reactivate
+                                            </button>
+                                        </form>
+                                        <form asp-action="Delete" asp-route-id="@brand.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('Permanently delete this brand? This cannot be undone.');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">No brands found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

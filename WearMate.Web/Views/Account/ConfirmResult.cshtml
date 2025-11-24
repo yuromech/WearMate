@@ -1,0 +1,18 @@
+﻿@{
+    bool success = Context.Request.Query["success"] == "true";
+}
+
+<div class="container text-center mt-5">
+    @if (success)
+    {
+        <h2 class="text-success">Your email has been verified!</h2>
+        <p>You may now login.</p>
+        <a class="btn btn-primary" href="/Account/Login">Go to Login</a>
+    }
+    else
+    {
+        <h2 class="text-danger">Verification Failed</h2>
+        <p>The verification link may be expired or invalid.</p>
+        <a class="btn btn-secondary" href="/Account/Login">Try Again</a>
+    }
+</div>

@@ -1,0 +1,430 @@
+/* =========================================
+   1. DESIGN SYSTEM & VARIABLES
+   ========================================= */
+:root {
+    /* Premium Color Palette */
+    --primary: #0f172a;
+    /* Deep Navy - Trust & Professionalism */
+    --primary-light: #334155;
+    --accent: #3b82f6;
+    /* Vibrant Blue - Call to Actions */
+    --accent-hover: #2563eb;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #0f172a 0%, #1e40af 100%);
+    --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --gradient-dark: linear-gradient(to bottom, #0f172a, #1e293b);
+    --gradient-overlay: linear-gradient(to top, rgba(15, 23, 42, 0.9), transparent);
+
+    /* Neutrals */
+    --dark: #0f172a;
+    --light: #f8fafc;
+    --white: #ffffff;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-500: #64748b;
+    --gray-800: #1e293b;
+
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Shadows & Depth */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-glow: 0 0 15px rgba(59, 130, 246, 0.5);
+
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.5);
+    --glass-blur: blur(12px);
+
+    /* Transitions */
+    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* =========================================
+   2. GLOBAL RESETS & TYPOGRAPHY
+   ========================================= */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--gray-800);
+    background-color: var(--light);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-heading);
+    color: var(--dark);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition-base);
+}
+
+a:hover {
+    color: var(--accent);
+}
+
+/* =========================================
+   3. UTILITY CLASSES & COMPONENTS
+   ========================================= */
+/* Text Gradients */
+.text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.text-gradient-accent {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Glassmorphism */
+.glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+}
+
+/* Animations */
+.hover-lift {
+    transition: var(--transition-base);
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.hover-glow {
+    transition: var(--transition-base);
+}
+
+.hover-glow:hover {
+    box-shadow: var(--shadow-glow);
+}
+
+/* Buttons */
+.btn {
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    transition: var(--transition-base);
+    letter-spacing: 0.025em;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    background: var(--gradient-accent);
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    background: transparent;
+}
+
+.btn-outline-primary:hover {
+    background: var(--gradient-accent);
+    border-color: transparent;
+    color: var(--white);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 1.5rem;
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition-base);
+    overflow: hidden;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+/* Badges */
+.badge {
+    font-weight: 600;
+    padding: 0.5em 0.8em;
+    border-radius: 0.5rem;
+    letter-spacing: 0.025em;
+}
+
+/* =========================================
+   4. PAGE SPECIFIC STYLES
+   ========================================= */
+
+/* --- Header & Nav --- */
+.navbar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.navbar-brand img {
+    height: 50px;
+    /* Adjusted for better proportion */
+    width: auto;
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.nav-link {
+    font-weight: 600;
+    color: var(--gray-500) !important;
+    font-size: 0.95rem;
+    padding: 0.5rem 1rem !important;
+    transition: var(--transition-base);
+    position: relative;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary) !important;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-accent);
+    transition: var(--transition-base);
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    width: 80%;
+}
+
+.cart-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    background: var(--gradient-accent);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+}
+
+/* --- Hero Section --- */
+.hero-section {
+    position: relative;
+    height: 600px;
+    /* Taller for more impact */
+    border-radius: 2rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.hero-overlay {
+    background: linear-gradient(to right, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.4));
+}
+
+/* --- Category Card --- */
+.category-card {
+    position: relative;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    aspect-ratio: 3/4;
+    /* More vertical for fashion look */
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+}
+
+.category-card img {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.category-card:hover img {
+    transform: scale(1.15);
+}
+
+.category-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.9) 0%, rgba(15, 23, 42, 0.2) 50%, transparent 100%);
+    display: flex;
+    align-items: flex-end;
+    padding: 2rem;
+    opacity: 0.9;
+    transition: var(--transition-base);
+}
+
+.category-card:hover .category-overlay {
+    opacity: 1;
+    padding-bottom: 2.5rem;
+    /* Lift effect */
+}
+
+.category-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    transform: translateY(0);
+    transition: var(--transition-base);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Product Card --- */
+.product-card {
+    height: 100%;
+    background: white;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    transition: var(--transition-base);
+}
+
+.product-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+}
+
+.product-img-wrapper {
+    position: relative;
+    overflow: hidden;
+    padding-top: 133%;
+    /* 3:4 Aspect Ratio - Standard for fashion */
+    background: var(--gray-100);
+}
+
+.product-img-wrapper img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-img-wrapper img {
+    transform: scale(1.08);
+}
+
+.product-actions {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: var(--transition-base);
+}
+
+.product-card:hover .product-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.action-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--dark);
+    box-shadow: var(--shadow-md);
+    transition: var(--transition-base);
+    font-size: 1.1rem;
+}
+
+.action-btn:hover {
+    background: var(--dark);
+    color: white;
+    transform: scale(1.1);
+}
+
+/* --- Footer --- */
+.footer {
+    background: var(--gradient-dark);
+    color: var(--gray-200);
+    border-top: 4px solid var(--accent);
+}
+
+.footer-link {
+    color: var(--gray-500);
+    transition: var(--transition-base);
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.footer-link:hover {
+    color: var(--accent);
+    transform: translateX(5px);
+}
+
+/* --- Animations --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-up {
+    animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}

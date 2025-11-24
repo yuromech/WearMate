@@ -1,0 +1,99 @@
+﻿@model WearMate.Shared.DTOs.Inventory.StockTransferDto
+@{
+    ViewData["Title"] = "Transfer Stock";
+    var warehouses = ViewBag.Warehouses as List<WearMate.Shared.DTOs.Inventory.WarehouseDto> ?? new();
+    var productsResult = ViewBag.Products as WearMate.Shared.DTOs.Common.PaginatedResult<WearMate.Shared.DTOs.Products.ProductDto>;
+}
+
+<h2><i class="bi bi-arrow-left-right"></i> Transfer Stock Between Warehouses</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Transfer" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="FromWarehouseId" class="form-label">From Warehouse *</label>
+                        <select asp-for="FromWarehouseId" class="form-select" required>
+                            <option value="">-- Select Source Warehouse --</option>
+                            @foreach (var warehouse in warehouses)
+                            {
+                                <option value="@warehouse.Id">@warehouse.Name (@warehouse.Code)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label asp-for="ToWarehouseId" class="form-label">To Warehouse *</label>
+                        <select asp-for="ToWarehouseId" class="form-select" required>
+                            <option value="">-- Select Destination Warehouse --</option>
+                            @foreach (var warehouse in warehouses)
+                            {
+                                <option value="@warehouse.Id">@warehouse.Name (@warehouse.Code)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ProductVariantId" class="form-label">Product Variant *</label>
+                <select asp-for="ProductVariantId" class="form-select" required>
+                    <option value="">-- Select Product Variant --</option>
+                    @if (productsResult?.Items != null)
+                    {
+                        @foreach (var product in productsResult.Items)
+                        {
+                            @if (product.Variants.Any())
+                            {
+                                @foreach (var variant in product.Variants)
+                                {
+                                    <option value="@variant.Id">
+                                        @product.Name - @variant.Size @variant.Color (@variant.Sku)
+                                    </option>
+                                }
+                            }
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Quantity" class="form-label">Quantity to Transfer *</label>
+                <input asp-for="Quantity" class="form-control" type="number" min="1" required />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Note" class="form-label">Transfer Note</label>
+                <textarea asp-for="Note" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-info">
+                    <i class="bi bi-arrow-left-right"></i> Transfer Stock
+                </button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Prevent selecting same warehouse for from and to
+        document.querySelectorAll('select[name="FromWarehouseId"], select[name="ToWarehouseId"]').forEach(select => {
+            select.addEventListener('change', function() {
+                const fromWarehouse = document.querySelector('select[name="FromWarehouseId"]').value;
+                const toWarehouse = document.querySelector('select[name="ToWarehouseId"]').value;
+
+                if (fromWarehouse && toWarehouse && fromWarehouse === toWarehouse) {
+                    alert('Source and destination warehouses must be different!');
+                    this.value = '';
+                }
+            });
+        });
+    </script>
+}

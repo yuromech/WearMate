@@ -1,0 +1,60 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36511.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WearMate.Shared", "WearMate.Shared\WearMate.Shared.csproj", "{53E9B582-6E49-4E5E-9E2A-0DB4E6B5D3D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WearMate.ProductAPI", "WearMate.ProductAPI\WearMate.ProductAPI.csproj", "{D9BBE6CC-A941-498B-834A-7388EEF972F0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		.env = .env
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WearMate.InventoryAPI", "WearMate.InventoryAPI\WearMate.InventoryAPI.csproj", "{532D70D0-B036-4E1F-B8D9-CE3B2E9A7AC6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WearMate.OrderAPI", "WearMate.OrderAPI\WearMate.OrderAPI.csproj", "{D3D85377-890F-45C2-8A95-F683ECB51C37}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WearMate.ChatAPI", "WearMate.ChatAPI\WearMate.ChatAPI.csproj", "{14163B65-A727-4B9A-945B-266FAC9C0285}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WearMate.Web", "WearMate.Web\WearMate.Web.csproj", "{0BF0CA97-709D-431F-A1AD-D139C670F4AC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53E9B582-6E49-4E5E-9E2A-0DB4E6B5D3D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53E9B582-6E49-4E5E-9E2A-0DB4E6B5D3D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53E9B582-6E49-4E5E-9E2A-0DB4E6B5D3D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53E9B582-6E49-4E5E-9E2A-0DB4E6B5D3D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9BBE6CC-A941-498B-834A-7388EEF972F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9BBE6CC-A941-498B-834A-7388EEF972F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9BBE6CC-A941-498B-834A-7388EEF972F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9BBE6CC-A941-498B-834A-7388EEF972F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{532D70D0-B036-4E1F-B8D9-CE3B2E9A7AC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{532D70D0-B036-4E1F-B8D9-CE3B2E9A7AC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{532D70D0-B036-4E1F-B8D9-CE3B2E9A7AC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{532D70D0-B036-4E1F-B8D9-CE3B2E9A7AC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3D85377-890F-45C2-8A95-F683ECB51C37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3D85377-890F-45C2-8A95-F683ECB51C37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3D85377-890F-45C2-8A95-F683ECB51C37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3D85377-890F-45C2-8A95-F683ECB51C37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14163B65-A727-4B9A-945B-266FAC9C0285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14163B65-A727-4B9A-945B-266FAC9C0285}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14163B65-A727-4B9A-945B-266FAC9C0285}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14163B65-A727-4B9A-945B-266FAC9C0285}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BF0CA97-709D-431F-A1AD-D139C670F4AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BF0CA97-709D-431F-A1AD-D139C670F4AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BF0CA97-709D-431F-A1AD-D139C670F4AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BF0CA97-709D-431F-A1AD-D139C670F4AC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3270AAE-CCA6-49E0-A395-CC15AA6EE25D}
+	EndGlobalSection
+EndGlobal

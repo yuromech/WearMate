@@ -1,0 +1,37 @@
+﻿<div class="container text-center mt-5">
+    <h2>Verifying your email…</h2>
+    <p>Please wait...</p>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", async function () {
+
+        console.log("Email Confirm JS Running");
+
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+
+        const accessToken = params.get("access_token");
+        const refreshToken = params.get("refresh_token");
+        const type = params.get("type");
+
+        if (!accessToken) {
+            window.location.href = "/Account/ConfirmResult?success=false";
+            return;
+        }
+
+        // Gửi token về backend xử lý
+        const res = await fetch("https://wearmate.id.vn/verify/callback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ accessToken, refreshToken, type })
+        });
+
+        if (!res.ok) {
+            window.location.href = "/Account/ConfirmResult?success=false";
+            return;
+        }
+
+        window.location.href = "/Account/ConfirmResult?success=true";
+    });
+</script>
