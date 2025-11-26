@@ -1,0 +1,43 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<WearMate.Web.Resources.SharedResource> Localizer
+
+@{
+    var currentPath = Context.Request.Path.Value ?? "/";
+    var currentCulture = System.Globalization.CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+}
+
+<div class="language-switcher">
+    <form method="post" action="/Language/SetLanguage" id="languageForm">
+        <input type="hidden" name="returnUrl" value="@currentPath" />
+        <select name="culture" class="language-select" onchange="document.getElementById('languageForm').submit()">
+            <option value="vi" selected="@(currentCulture == "vi")">🇻🇳 Tiếng Việt</option>
+            <option value="en" selected="@(currentCulture == "en")">🇬🇧 English</option>
+        </select>
+    </form>
+</div>
+
+<style>
+    .language-switcher {
+        display: inline-block;
+    }
+
+    .language-select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background-color: white;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .language-select:hover {
+        border-color: #007bff;
+        box-shadow: 0 2px 4px rgba(0,123,255,0.1);
+    }
+
+    .language-select:focus {
+        outline: none;
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+</style>

@@ -3,4 +3,7 @@
 @using WearMate.Web.Models
 @using WearMate.Web.Models.ViewModels
 @using WearMate.Shared.DTOs.Products
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<WearMate.Web.Resources.SharedResource> Localizer
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, WearMate.Web

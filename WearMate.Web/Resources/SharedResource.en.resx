@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Common -->
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Products" xml:space="preserve">
+    <value>Products</value>
+  </data>
+  <data name="Categories" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="Cart" xml:space="preserve">
+    <value>Cart</value>
+  </data>
+  <data name="Checkout" xml:space="preserve">
+    <value>Checkout</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Login</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Logout</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>View All</value>
+  </data>
+  <data name="AddToCart" xml:space="preserve">
+    <value>Add to Cart</value>
+  </data>
+  <data name="BuyNow" xml:space="preserve">
+    <value>Buy Now</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Price</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Color" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Quantity</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Subtotal" xml:space="preserve">
+    <value>Subtotal</value>
+  </data>
+  <data name="Shipping" xml:space="preserve">
+    <value>Shipping</value>
+  </data>
+  <data name="Tax" xml:space="preserve">
+    <value>Tax</value>
+  </data>
+  
+  <!-- Product related -->
+  <data name="FeaturedProducts" xml:space="preserve">
+    <value>Featured Products</value>
+  </data>
+  <data name="NewArrivals" xml:space="preserve">
+    <value>New Arrivals</value>
+  </data>
+  <data name="BestSellers" xml:space="preserve">
+    <value>Best Sellers</value>
+  </data>
+  <data name="FlashSale" xml:space="preserve">
+    <value>Flash Sale</value>
+  </data>
+  <data name="ProductDetails" xml:space="preserve">
+    <value>Product Details</value>
+  </data>
+  <data name="ProductDescription" xml:space="preserve">
+    <value>Product Description</value>
+  </data>
+  <data name="InStock" xml:space="preserve">
+    <value>In Stock</value>
+  </data>
+  <data name="OutOfStock" xml:space="preserve">
+    <value>Out of Stock</value>
+  </data>
+  
+  <!-- Footer -->
+  <data name="AboutUs" xml:space="preserve">
+    <value>About Us</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>Contact Us</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="TermsOfService" xml:space="preserve">
+    <value>Terms of Service</value>
+  </data>
+  <data name="FollowUs" xml:space="preserve">
+    <value>Follow Us</value>
+  </data>
+  <data name="Newsletter" xml:space="preserve">
+    <value>Newsletter</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>Subscribe</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="Welcome" xml:space="preserve">
+    <value>Welcome to WearMate</value>
+  </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Thank You</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="NoResults" xml:space="preserve">
+    <value>No results found</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  
+  <!-- Added Keys -->
+  <data name="Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Orders" xml:space="preserve">
+    <value>Orders</value>
+  </data>
+  <data name="Support" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="HelpCenter" xml:space="preserve">
+    <value>Help Center</value>
+  </data>
+  <data name="SizeGuide" xml:space="preserve">
+    <value>Size Guide</value>
+  </data>
+  <data name="Returns" xml:space="preserve">
+    <value>Returns Policy</value>
+  </data>
+  <data name="TrackOrder" xml:space="preserve">
+    <value>Track Order</value>
+  </data>
+  <data name="NewsletterDesc" xml:space="preserve">
+    <value>Get updates on new products and special promotions.</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>Your email...</value>
+  </data>
+  
+  <!-- Home Page Keys -->
+  <data name="NewCollection2025" xml:space="preserve">
+    <value>New Collection 2025</value>
+  </data>
+  <data name="HeroTitle" xml:space="preserve">
+    <value>Minimalist Style,</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>Maximum Quality.</value>
+  </data>
+  <data name="HeroDesc" xml:space="preserve">
+    <value>Discover our modern men's fashion collection, designed to accompany you in every moment of life.</value>
+  </data>
+  <data name="FreeShipping" xml:space="preserve">
+    <value>Free Shipping</value>
+  </data>
+  <data name="FreeShippingDesc" xml:space="preserve">
+    <value>Orders from 500k</value>
+  </data>
+  <data name="EasyReturns" xml:space="preserve">
+    <value>Easy Returns</value>
+  </data>
+  <data name="EasyReturnsDesc" xml:space="preserve">
+    <value>Within 30 days</value>
+  </data>
+  <data name="SecurePayment" xml:space="preserve">
+    <value>Secure Payment</value>
+  </data>
+  <data name="SecurePaymentDesc" xml:space="preserve">
+    <value>100% Secure</value>
+  </data>
+  <data name="Support247" xml:space="preserve">
+    <value>24/7 Support</value>
+  </data>
+  <data name="Support247Desc" xml:space="preserve">
+    <value>Hotline &amp; Chat</value>
+  </data>
+  <data name="FlashSaleTitle" xml:space="preserve">
+    <value>Shocking Sale - Limited Time!</value>
+  </data>
+  <data name="FlashSaleDesc" xml:space="preserve">
+    <value>Hurry up to catch up to 50% off deals</value>
+  </data>
+  <data name="Hours" xml:space="preserve">
+    <value>Hours</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>Minutes</value>
+  </data>
+  <data name="Seconds" xml:space="preserve">
+    <value>Seconds</value>
+  </data>
+  <data name="ViewDetail" xml:space="preserve">
+    <value>View Detail</value>
+  </data>
+  <data name="ViewAllFlashSale" xml:space="preserve">
+    <value>View All Flash Sale</value>
+  </data>
+  <data name="Collections" xml:space="preserve">
+    <value>Collections</value>
+  </data>
+  <data name="FeaturedCategories" xml:space="preserve">
+    <value>Featured Categories</value>
+  </data>
+  <data name="FeaturedCategoriesDesc" xml:space="preserve">
+    <value>Explore diverse fashion collections</value>
+  </data>
+  <data name="ExploreNow" xml:space="preserve">
+    <value>Explore Now</value>
+  </data>
+  <data name="LatestProducts" xml:space="preserve">
+    <value>Latest Products</value>
+  </data>
+  <data name="LatestProductsDesc" xml:space="preserve">
+    <value>Update the latest fashion trends</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="HotProducts" xml:space="preserve">
+    <value>Hot Products</value>
+  </data>
+  <data name="MostLoved" xml:space="preserve">
+    <value>Most Loved</value>
+  </data>
+  <data name="MostLovedDesc" xml:space="preserve">
+    <value>Top choices from WearMate community</value>
+  </data>
+  <data name="Hot" xml:space="preserve">
+    <value>Hot</value>
+  </data>
+  <data name="BestSellingProducts" xml:space="preserve">
+    <value>Best Selling Products</value>
+  </data>
+  <data name="BestSellingProductsDesc" xml:space="preserve">
+    <value>Products most loved by customers</value>
+  </data>
+  <data name="ViewAllBestSellers" xml:space="preserve">
+    <value>View All Best Sellers</value>
+  </data>
+  <data name="NewsletterTitle" xml:space="preserve">
+    <value>Subscribe to Newsletter</value>
+  </data>
+  <data name="NewsletterPromo" xml:space="preserve">
+    <value>Get 10% off coupon for your first order and update latest fashion trends.</value>
+  </data>
+</root>

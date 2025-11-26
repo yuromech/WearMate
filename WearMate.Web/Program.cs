@@ -2,6 +2,9 @@
 using WearMate.Shared.Helpers;
 using WearMate.Web.ApiClients;
 using WearMate.Web.Services;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization.Routing;
+using System.Globalization;
 
 var envPath = Path.Combine(Directory.GetCurrentDirectory(), "..", ".env");
 if (File.Exists(envPath))
@@ -18,11 +21,41 @@ builder.WebHost.UseUrls(port);
 
 Console.WriteLine($"🚀 WearMate.Web will run on: {port}");
 
-builder.Services.AddControllersWithViews();
+// Localization
+builder.Services.AddLocalization(); // Removed ResourcesPath to use default behavior with marker class
+builder.Services.AddControllersWithViews()
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
+
 builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
 {
     options.HttpsPort = 443;
 });
+
+// Configure supported cultures
+var supportedCultures = new[]
+{
+    new CultureInfo("en"),
+    new CultureInfo("vi")
+};
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+    
+    options.RequestCultureProviders.Clear();
+    
+    // Priority 1: Route Data (URL)
+    options.RequestCultureProviders.Add(new RouteDataRequestCultureProvider { Options = options });
+    
+    // Priority 2: Cookie (Fallback if route doesn't match)
+    options.RequestCultureProviders.Add(new CookieRequestCultureProvider { Options = options });
+});
+
+// HttpContextAccessor for TagHelpers
+builder.Services.AddHttpContextAccessor();
 
 // AuthService
 builder.Services.AddScoped<AuthService>();
@@ -131,19 +164,28 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
+
+// Use culture redirect middleware before request localization
+app.UseMiddleware<WearMate.Web.Middleware.CultureRedirectMiddleware>();
+
+app.UseRequestLocalization();
 app.UseSession();
 app.UseAuthorization();
 
 // Attribute-routed APIs (e.g., product variant proxy)
 app.MapControllers();
 
+// Admin area route WITHOUT culture
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
+// Default route WITH culture
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    name: "defaultWithCulture",
+    pattern: "{culture}/{controller=Home}/{action=Index}/{id?}",
+    defaults: new { culture = "en" },
+    constraints: new { culture = "vi|en" });
 
 Console.WriteLine("✅ WearMate.Web started!");
 Console.WriteLine($"📍 URL: {port}");

@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Common -->
+  <data name="Home" xml:space="preserve">
+    <value>Trang chủ</value>
+  </data>
+  <data name="Products" xml:space="preserve">
+    <value>Sản phẩm</value>
+  </data>
+  <data name="Categories" xml:space="preserve">
+    <value>Danh mục</value>
+  </data>
+  <data name="Cart" xml:space="preserve">
+    <value>Giỏ hàng</value>
+  </data>
+  <data name="Checkout" xml:space="preserve">
+    <value>Thanh toán</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Đăng nhập</value>
+  </data>
+  <data name="Register" xml:space="preserve">
+    <value>Đăng ký</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Đăng xuất</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Tìm kiếm</value>
+  </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>Xem tất cả</value>
+  </data>
+  <data name="AddToCart" xml:space="preserve">
+    <value>Thêm vào giỏ</value>
+  </data>
+  <data name="BuyNow" xml:space="preserve">
+    <value>Mua ngay</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>Giá</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Kích thước</value>
+  </data>
+  <data name="Color" xml:space="preserve">
+    <value>Màu sắc</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>Số lượng</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Tổng cộng</value>
+  </data>
+  <data name="Subtotal" xml:space="preserve">
+    <value>Tạm tính</value>
+  </data>
+  <data name="Shipping" xml:space="preserve">
+    <value>Phí vận chuyển</value>
+  </data>
+  <data name="Tax" xml:space="preserve">
+    <value>Thuế</value>
+  </data>
+  
+  <!-- Product related -->
+  <data name="FeaturedProducts" xml:space="preserve">
+    <value>Sản phẩm nổi bật</value>
+  </data>
+  <data name="NewArrivals" xml:space="preserve">
+    <value>Hàng mới về</value>
+  </data>
+  <data name="BestSellers" xml:space="preserve">
+    <value>Bán chạy nhất</value>
+  </data>
+  <data name="FlashSale" xml:space="preserve">
+    <value>Flash Sale</value>
+  </data>
+  <data name="ProductDetails" xml:space="preserve">
+    <value>Chi tiết sản phẩm</value>
+  </data>
+  <data name="ProductDescription" xml:space="preserve">
+    <value>Mô tả sản phẩm</value>
+  </data>
+  <data name="InStock" xml:space="preserve">
+    <value>Còn hàng</value>
+  </data>
+  <data name="OutOfStock" xml:space="preserve">
+    <value>Hết hàng</value>
+  </data>
+  
+  <!-- Footer -->
+  <data name="AboutUs" xml:space="preserve">
+    <value>Về chúng tôi</value>
+  </data>
+  <data name="ContactUs" xml:space="preserve">
+    <value>Liên hệ</value>
+  </data>
+  <data name="PrivacyPolicy" xml:space="preserve">
+    <value>Chính sách bảo mật</value>
+  </data>
+  <data name="TermsOfService" xml:space="preserve">
+    <value>Điều khoản dịch vụ</value>
+  </data>
+  <data name="FollowUs" xml:space="preserve">
+    <value>Theo dõi chúng tôi</value>
+  </data>
+  <data name="Newsletter" xml:space="preserve">
+    <value>Bản tin</value>
+  </data>
+  <data name="Subscribe" xml:space="preserve">
+    <value>Đăng ký</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="Welcome" xml:space="preserve">
+    <value>Chào mừng đến WearMate</value>
+  </data>
+  <data name="ThankYou" xml:space="preserve">
+    <value>Cảm ơn bạn</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Đang tải...</value>
+  </data>
+  <data name="NoResults" xml:space="preserve">
+    <value>Không tìm thấy kết quả</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Lỗi</value>
+  </data>
+  
+  <!-- Added Keys -->
+  <data name="Profile" xml:space="preserve">
+    <value>Hồ sơ</value>
+  </data>
+  <data name="Orders" xml:space="preserve">
+    <value>Đơn hàng</value>
+  </data>
+  <data name="Support" xml:space="preserve">
+    <value>Hỗ trợ</value>
+  </data>
+  <data name="HelpCenter" xml:space="preserve">
+    <value>Trung tâm trợ giúp</value>
+  </data>
+  <data name="SizeGuide" xml:space="preserve">
+    <value>Hướng dẫn chọn size</value>
+  </data>
+  <data name="Returns" xml:space="preserve">
+    <value>Chính sách đổi trả</value>
+  </data>
+  <data name="TrackOrder" xml:space="preserve">
+    <value>Theo dõi đơn hàng</value>
+  </data>
+  <data name="NewsletterDesc" xml:space="preserve">
+    <value>Nhận thông tin về sản phẩm mới và khuyến mãi đặc biệt.</value>
+  </data>
+  <data name="EmailPlaceholder" xml:space="preserve">
+    <value>Email của bạn...</value>
+  </data>
+  
+  <!-- Home Page Keys -->
+  <data name="NewCollection2025" xml:space="preserve">
+    <value>Bộ sưu tập mới 2025</value>
+  </data>
+  <data name="HeroTitle" xml:space="preserve">
+    <value>Phong cách tối giản,</value>
+  </data>
+  <data name="HeroSubtitle" xml:space="preserve">
+    <value>Chất lượng tối đa.</value>
+  </data>
+  <data name="HeroDesc" xml:space="preserve">
+    <value>Khám phá bộ sưu tập thời trang nam hiện đại, được thiết kế tinh tế để đồng hành cùng bạn trong mọi khoảnh khắc của cuộc sống.</value>
+  </data>
+  <data name="FreeShipping" xml:space="preserve">
+    <value>Miễn phí vận chuyển</value>
+  </data>
+  <data name="FreeShippingDesc" xml:space="preserve">
+    <value>Đơn hàng từ 500k</value>
+  </data>
+  <data name="EasyReturns" xml:space="preserve">
+    <value>Đổi trả dễ dàng</value>
+  </data>
+  <data name="EasyReturnsDesc" xml:space="preserve">
+    <value>Trong vòng 30 ngày</value>
+  </data>
+  <data name="SecurePayment" xml:space="preserve">
+    <value>Thanh toán an toàn</value>
+  </data>
+  <data name="SecurePaymentDesc" xml:space="preserve">
+    <value>Bảo mật 100%</value>
+  </data>
+  <data name="Support247" xml:space="preserve">
+    <value>Hỗ trợ 24/7</value>
+  </data>
+  <data name="Support247Desc" xml:space="preserve">
+    <value>Hotline &amp; Chat</value>
+  </data>
+  <data name="FlashSaleTitle" xml:space="preserve">
+    <value>Giảm giá sốc - Có hạn!</value>
+  </data>
+  <data name="FlashSaleDesc" xml:space="preserve">
+    <value>Nhanh tay chớp lấy cơ hội giảm giá đến 50%</value>
+  </data>
+  <data name="Hours" xml:space="preserve">
+    <value>Giờ</value>
+  </data>
+  <data name="Minutes" xml:space="preserve">
+    <value>Phút</value>
+  </data>
+  <data name="Seconds" xml:space="preserve">
+    <value>Giây</value>
+  </data>
+  <data name="ViewDetail" xml:space="preserve">
+    <value>Xem chi tiết</value>
+  </data>
+  <data name="ViewAllFlashSale" xml:space="preserve">
+    <value>Xem tất cả Flash Sale</value>
+  </data>
+  <data name="Collections" xml:space="preserve">
+    <value>Bộ sưu tập</value>
+  </data>
+  <data name="FeaturedCategories" xml:space="preserve">
+    <value>Danh mục nổi bật</value>
+  </data>
+  <data name="FeaturedCategoriesDesc" xml:space="preserve">
+    <value>Khám phá các bộ sưu tập thời trang đa dạng</value>
+  </data>
+  <data name="ExploreNow" xml:space="preserve">
+    <value>Khám phá ngay</value>
+  </data>
+  <data name="LatestProducts" xml:space="preserve">
+    <value>Sản phẩm mới nhất</value>
+  </data>
+  <data name="LatestProductsDesc" xml:space="preserve">
+    <value>Cập nhật những xu hướng thời trang mới nhất</value>
+  </data>
+  <data name="New" xml:space="preserve">
+    <value>Mới</value>
+  </data>
+  <data name="HotProducts" xml:space="preserve">
+    <value>Sản phẩm hot</value>
+  </data>
+  <data name="MostLoved" xml:space="preserve">
+    <value>Được yêu thích nhất</value>
+  </data>
+  <data name="MostLovedDesc" xml:space="preserve">
+    <value>Những lựa chọn hàng đầu từ cộng đồng WearMate</value>
+  </data>
+  <data name="Hot" xml:space="preserve">
+    <value>Hot</value>
+  </data>
+  <data name="BestSellingProducts" xml:space="preserve">
+    <value>Sản phẩm bán chạy</value>
+  </data>
+  <data name="BestSellingProductsDesc" xml:space="preserve">
+    <value>Những sản phẩm được khách hàng yêu thích nhất</value>
+  </data>
+  <data name="ViewAllBestSellers" xml:space="preserve">
+    <value>Xem tất cả sản phẩm bán chạy</value>
+  </data>
+  <data name="NewsletterTitle" xml:space="preserve">
+    <value>Đăng ký nhận tin</value>
+  </data>
+  <data name="NewsletterPromo" xml:space="preserve">
+    <value>Nhận ngay mã giảm giá 10% cho đơn hàng đầu tiên và cập nhật những xu hướng thời trang mới nhất.</value>
+  </data>
+</root>

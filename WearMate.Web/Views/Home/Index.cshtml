@@ -12,19 +12,19 @@
                 <div class="row">
                     <div class="col-lg-7 text-white animate-fade-up">
                         <div class="d-inline-block glass-effect px-4 py-2 rounded-pill mb-4 border-0">
-                            <span class="text-gradient-accent fw-bold text-uppercase tracking-wider small">Bộ sưu tập mới 2024</span>
+                            <span class="text-gradient-accent fw-bold text-uppercase tracking-wider small">@Localizer["NewCollection2025"]</span>
                         </div>
                         <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-                            Phong cách tối giản,<br>
-                            <span class="text-gradient-accent">Chất lượng tối đa.</span>
+                            @Localizer["HeroTitle"]<br>
+                            <span class="text-gradient-accent">@Localizer["HeroSubtitle"]</span>
                         </h1>
-                        <p class="lead mb-5 opacity-90 fw-light" style="max-width: 600px;">Khám phá bộ sưu tập thời trang nam hiện đại, được thiết kế tinh tế để đồng hành cùng bạn trong mọi khoảnh khắc của cuộc sống.</p>
+                        <p class="lead mb-5 opacity-90 fw-light" style="max-width: 600px;">@Localizer["HeroDesc"]</p>
                         <div class="d-flex gap-3">
                             <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg hover-lift">
-                                Mua ngay <i class="bi bi-arrow-right ms-2"></i>
+                                @Localizer["BuyNow"] <i class="bi bi-arrow-right ms-2"></i>
                             </a>
                             <a asp-controller="Products" asp-action="Index" asp-route-category="sale" class="btn btn-outline-light btn-lg px-5 rounded-pill hover-lift backdrop-blur">
-                                Xem Sale
+                                @Localizer["FlashSale"]
                             </a>
                         </div>
                     </div>
@@ -43,8 +43,8 @@
                     <i class="bi bi-truck fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="mb-1 fw-bold">Miễn phí vận chuyển</h6>
-                    <small class="text-muted">Đơn hàng từ 500k</small>
+                    <h6 class="mb-1 fw-bold">@Localizer["FreeShipping"]</h6>
+                    <small class="text-muted">@Localizer["FreeShippingDesc"]</small>
                 </div>
             </div>
         </div>
@@ -54,8 +54,8 @@
                     <i class="bi bi-arrow-repeat fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="mb-1 fw-bold">Đổi trả dễ dàng</h6>
-                    <small class="text-muted">Trong vòng 30 ngày</small>
+                    <h6 class="mb-1 fw-bold">@Localizer["EasyReturns"]</h6>
+                    <small class="text-muted">@Localizer["EasyReturnsDesc"]</small>
                 </div>
             </div>
         </div>
@@ -65,8 +65,8 @@
                     <i class="bi bi-shield-check fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="mb-1 fw-bold">Thanh toán an toàn</h6>
-                    <small class="text-muted">Bảo mật 100%</small>
+                    <h6 class="mb-1 fw-bold">@Localizer["SecurePayment"]</h6>
+                    <small class="text-muted">@Localizer["SecurePaymentDesc"]</small>
                 </div>
             </div>
         </div>
@@ -76,8 +76,8 @@
                     <i class="bi bi-headset fs-4"></i>
                 </div>
                 <div>
-                    <h6 class="mb-1 fw-bold">Hỗ trợ 24/7</h6>
-                    <small class="text-muted">Hotline & Chat</small>
+                    <h6 class="mb-1 fw-bold">@Localizer["Support247"]</h6>
+                    <small class="text-muted">@Localizer["Support247Desc"]</small>
                 </div>
             </div>
         </div>
@@ -97,25 +97,25 @@
                 <div class="text-center mb-4">
                     <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-25 backdrop-blur px-4 py-2 rounded-pill mb-3">
                         <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
-                        <span class="text-white fw-bold text-uppercase tracking-wider">Flash Sale</span>
+                        <span class="text-white fw-bold text-uppercase tracking-wider">@Localizer["FlashSale"]</span>
                         <i class="bi bi-lightning-charge-fill text-warning fs-5"></i>
                     </div>
-                    <h2 class="fw-bold text-white display-6 mb-2">Giảm giá sốc - Có hạn!</h2>
-                    <p class="text-white text-opacity-75 mb-3">Nhanh tay chớp lấy cơ hội giảm giá đến 50%</p>
+                    <h2 class="fw-bold text-white display-6 mb-2">@Localizer["FlashSaleTitle"]</h2>
+                    <p class="text-white text-opacity-75 mb-3">@Localizer["FlashSaleDesc"]</p>
                     
                     <!-- Countdown Timer -->
                     <div class="d-flex justify-content-center gap-3 mb-4">
                         <div class="bg-white bg-opacity-20 backdrop-blur rounded-3 px-3 py-2 text-center">
                             <div class="text-white fw-bold fs-3 lh-1">12</div>
-                            <small class="text-white text-opacity-75">Giờ</small>
+                            <small class="text-white text-opacity-75">@Localizer["Hours"]</small>
                         </div>
                         <div class="bg-white bg-opacity-20 backdrop-blur rounded-3 px-3 py-2 text-center">
                             <div class="text-white fw-bold fs-3 lh-1">34</div>
-                            <small class="text-white text-opacity-75">Phút</small>
+                            <small class="text-white text-opacity-75">@Localizer["Minutes"]</small>
                         </div>
                         <div class="bg-white bg-opacity-20 backdrop-blur rounded-3 px-3 py-2 text-center">
                             <div class="text-white fw-bold fs-3 lh-1">56</div>
-                            <small class="text-white text-opacity-75">Giây</small>
+                            <small class="text-white text-opacity-75">@Localizer["Seconds"]</small>
                         </div>
                     </div>
                 </div>
@@ -130,10 +130,10 @@
                                     <div class="product-img-wrapper">
                                         <img src="@(product.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@product.Name">
                                         <div class="product-actions">
-                                            <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="Xem chi tiết">
+                                            <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="@Localizer["ViewDetail"]">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <button class="action-btn" title="Thêm vào giỏ">
+                                            <button class="action-btn" title="@Localizer["AddToCart"]">
                                                 <i class="bi bi-bag-plus"></i>
                                             </button>
                                         </div>
@@ -167,7 +167,7 @@
                     
                     <div class="text-center mt-4">
                         <a asp-controller="Products" asp-action="Index" asp-route-category="sale" class="btn btn-light btn-lg rounded-pill px-5 hover-lift shadow">
-                            <i class="bi bi-lightning-charge-fill me-2"></i>Xem tất cả Flash Sale
+                            <i class="bi bi-lightning-charge-fill me-2"></i>@Localizer["ViewAllFlashSale"]
                         </a>
                     </div>
                 </div>
@@ -182,12 +182,12 @@
     <section class="container mb-5">
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <span class="text-gradient fw-bold text-uppercase small tracking-wider">Bộ sưu tập</span>
-                <h2 class="fw-bold mb-1 mt-2">Danh mục nổi bật</h2>
-                <p class="text-muted mb-0">Khám phá các bộ sưu tập thời trang đa dạng</p>
+                <span class="text-gradient fw-bold text-uppercase small tracking-wider">@Localizer["Collections"]</span>
+                <h2 class="fw-bold mb-1 mt-2">@Localizer["FeaturedCategories"]</h2>
+                <p class="text-muted mb-0">@Localizer["FeaturedCategoriesDesc"]</p>
             </div>
             <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4 hover-lift">
-                Xem tất cả <i class="bi bi-arrow-right ms-1"></i>
+                @Localizer["ViewAll"] <i class="bi bi-arrow-right ms-1"></i>
             </a>
         </div>
 
@@ -202,7 +202,7 @@
                                 <div class="w-100">
                                     <h3 class="category-title mb-2">@category.Name</h3>
                                     <div class="d-flex align-items-center text-white small text-uppercase tracking-wide opacity-0 hover-visible transition-base">
-                                        <span class="border-bottom border-white pb-1">Khám phá ngay</span>
+                                        <span class="border-bottom border-white pb-1">@Localizer["ExploreNow"]</span>
                                         <i class="bi bi-arrow-right ms-2"></i>
                                     </div>
                                 </div>
@@ -215,60 +215,6 @@
     </section>
 }
 
-<!-- NEW ARRIVALS -->
-@if (Model.NewArrivals.Any())
-{
-    <section class="bg-white py-5 mb-5">
-        <div class="container">
-            <div class="text-center mb-5">
-                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-3">
-                    <i class="bi bi-stars me-1"></i> Hàng mới về
-                </span>
-                <h2 class="fw-bold display-6">Sản phẩm mới nhất</h2>
-                <p class="text-muted">Cập nhật những xu hướng thời trang mới nhất</p>
-            </div>
-
-            <div class="row g-4">
-                @foreach (var product in Model.NewArrivals.Take(4))
-                {
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <div class="product-img-wrapper">
-                                <img src="@(product.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@product.Name">
-                                <div class="product-actions">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="Xem chi tiết">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <button class="action-btn" title="Thêm vào giỏ">
-                                        <i class="bi bi-bag-plus"></i>
-                                    </button>
-                                </div>
-                                <span class="position-absolute top-0 start-0 m-3 badge bg-success rounded-pill shadow-sm">Mới</span>
-                            </div>
-                            <div class="card-body text-center p-4">
-                                <div class="text-muted small mb-2 text-uppercase tracking-wide">@product.Category?.Name</div>
-                                <h6 class="fw-bold text-truncate mb-3 fs-5">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="text-dark text-decoration-none hover-link">@product.Name</a>
-                                </h6>
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    @if (product.SalePrice.HasValue)
-                                    {
-                                        <span class="text-muted text-decoration-line-through small">@product.BasePrice.ToString("N0")đ</span>
-                                        <span class="text-danger fw-bold fs-5">@product.SalePrice.Value.ToString("N0")đ</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="fw-bold fs-5 text-primary">@product.BasePrice.ToString("N0")đ</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
-    </section>
-}
 
 <!-- FEATURED PRODUCTS -->
 @if (Model.FeaturedProducts.Any())
@@ -279,9 +225,9 @@
         
         <div class="container position-relative z-1">
             <div class="text-center mb-5">
-                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3">Sản phẩm hot</span>
-                <h2 class="fw-bold display-6">Được yêu thích nhất</h2>
-                <p class="text-muted">Những lựa chọn hàng đầu từ cộng đồng WearMate</p>
+                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3">@Localizer["HotProducts"]</span>
+                <h2 class="fw-bold display-6">@Localizer["MostLoved"]</h2>
+                <p class="text-muted">@Localizer["MostLovedDesc"]</p>
             </div>
 
             <div class="row g-4">
@@ -292,10 +238,10 @@
                             <div class="product-img-wrapper">
                                 <img src="@(product.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@product.Name">
                                 <div class="product-actions">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="Xem chi tiết">
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="@Localizer["ViewDetail"]">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <button class="action-btn" title="Thêm vào giỏ">
+                                    <button class="action-btn" title="@Localizer["AddToCart"]">
                                         <i class="bi bi-bag-plus"></i>
                                     </button>
                                 </div>
@@ -328,7 +274,7 @@
             
             <div class="text-center mt-5">
                 <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark rounded-pill px-5 py-3 hover-lift">
-                    Xem tất cả sản phẩm
+                    @Localizer["ViewAll"]
                 </a>
             </div>
         </div>
@@ -345,10 +291,10 @@
         <div class="container position-relative z-1">
             <div class="text-center mb-5">
                 <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2 mb-3">
-                    <i class="bi bi-fire me-1"></i> Bán chạy nhất
+                    <i class="bi bi-fire me-1"></i> @Localizer["BestSellingProducts"]
                 </span>
-                <h2 class="fw-bold display-6">Sản phẩm bán chạy</h2>
-                <p class="text-muted">Những sản phẩm được khách hàng yêu thích nhất</p>
+                <h2 class="fw-bold display-6">@Localizer["BestSellingProducts"]</h2>
+                <p class="text-muted">@Localizer["BestSellingProductsDesc"]</p>
             </div>
 
             <div class="row g-4">
@@ -359,10 +305,10 @@
                             <div class="product-img-wrapper">
                                 <img src="@(product.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@product.Name">
                                 <div class="product-actions">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="Xem chi tiết">
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="@Localizer["ViewDetail"]">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <button class="action-btn" title="Thêm vào giỏ">
+                                    <button class="action-btn" title="@Localizer["AddToCart"]">
                                         <i class="bi bi-bag-plus"></i>
                                     </button>
                                 </div>
@@ -373,7 +319,7 @@
                                 else
                                 {
                                     <span class="position-absolute top-0 start-0 m-3 badge bg-warning rounded-pill shadow-sm">
-                                        <i class="bi bi-fire"></i> Hot
+                                        <i class="bi bi-fire"></i> @Localizer["Hot"]
                                     </span>
                                 }
                             </div>
@@ -401,7 +347,7 @@
             
             <div class="text-center mt-5">
                 <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark rounded-pill px-5 py-3 hover-lift">
-                    Xem tất cả sản phẩm bán chạy
+                    @Localizer["ViewAllBestSellers"]
                 </a>
             </div>
         </div>
@@ -412,11 +358,11 @@
 <section class="container mb-5">
     <div class="rounded-4 p-5 text-center position-relative overflow-hidden shadow-lg" style="background: var(--gradient-dark);">
         <div class="position-relative z-1">
-            <h2 class="fw-bold mb-3 text-white">Đăng ký nhận tin</h2>
-            <p class="text-white-50 mb-4 mx-auto" style="max-width: 500px;">Nhận ngay mã giảm giá 10% cho đơn hàng đầu tiên và cập nhật những xu hướng thời trang mới nhất.</p>
+            <h2 class="fw-bold mb-3 text-white">@Localizer["NewsletterTitle"]</h2>
+            <p class="text-white-50 mb-4 mx-auto" style="max-width: 500px;">@Localizer["NewsletterPromo"]</p>
             <form class="d-flex justify-content-center gap-2 mx-auto" style="max-width: 450px;">
-                <input type="email" class="form-control form-control-lg rounded-pill px-4 border-0" placeholder="Email của bạn...">
-                <button class="btn btn-primary btn-lg rounded-pill px-4 hover-glow">Đăng ký</button>
+                <input type="email" class="form-control form-control-lg rounded-pill px-4 border-0" placeholder="@Localizer["EmailPlaceholder"]">
+                <button class="btn btn-primary btn-lg rounded-pill px-4 hover-glow">@Localizer["Subscribe"]</button>
             </form>
         </div>
         <!-- Decorative circle -->
