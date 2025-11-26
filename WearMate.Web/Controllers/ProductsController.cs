@@ -22,23 +22,43 @@ public class ProductsController : Controller
     // ===================================================================
     public async Task<IActionResult> Index(
         int page = 1,
-        Guid? categoryId = null,
-        Guid? brandId = null,
+        string? category = null,
+        string? brand = null,
         int? minPrice = null,
         int? maxPrice = null,
         string? size = null,
         string? color = null,
         string? sort = null,
-        string? search = null
+        string? search = null,
+        // Legacy GUID parameters for backward compatibility
+        Guid? categoryId = null,
+        Guid? brandId = null
     )
     {
-        // 1 Build Filter DTO gi xung microservice
+        // SEO: Redirect legacy GUID-based URLs to slug-based URLs
+        if (categoryId.HasValue && string.IsNullOrWhiteSpace(category))
+        {
+            var categories = await _productApi.GetCategoriesAsync();
+            var cat = categories?.FirstOrDefault(c => c.Id == categoryId.Value);
+            if (cat != null)
+                return RedirectToAction("Index", new { category = cat.Slug, brand, search, sort, page });
+        }
+
+        if (brandId.HasValue && string.IsNullOrWhiteSpace(brand))
+        {
+            var brands = await _productApi.GetBrandsAsync();
+            var b = brands?.FirstOrDefault(b => b.Id == brandId.Value);
+            if (b != null)
+                return RedirectToAction("Index", new { category, brand = b.Slug, search, sort, page });
+        }
+
+        // Build Filter DTO
         var filter = new ProductFilterDto
         {
             Page = page,
             PageSize = 12,
-            CategoryId = categoryId,
-            BrandId = brandId,
+            Category = category,
+            Brand = brand,
             MinPrice = minPrice,
             MaxPrice = maxPrice,
             Size = size,
@@ -47,13 +67,13 @@ public class ProductsController : Controller
             Search = search
         };
 
-        // 2 Build ViewModel ban u ( gi state UI)
+        // Build ViewModel
         var vm = new ProductListViewModel
         {
             CurrentPage = page,
 
-            SelectedCategoryId = categoryId,
-            SelectedBrandId = brandId,
+            SelectedCategory = category,
+            SelectedBrand = brand,
 
             MinPrice = minPrice,
             MaxPrice = maxPrice,

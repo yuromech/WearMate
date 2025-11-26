@@ -140,9 +140,13 @@ public class ProductFilterDto
     // Search
     public string? Search { get; set; }
 
-    // Category / Brand
+    // Category / Brand (GUID-based - for backward compatibility)
     public Guid? CategoryId { get; set; }
     public Guid? BrandId { get; set; }
+
+    // Category / Brand (Slug-based - SEO-friendly, preferred)
+    public string? Category { get; set; }
+    public string? Brand { get; set; }
 
     // Price filter
     public int? MinPrice { get; set; }

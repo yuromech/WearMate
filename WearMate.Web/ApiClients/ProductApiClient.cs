@@ -97,10 +97,21 @@ public class ProductApiClient : BaseApiClient
 
     public async Task<PaginatedResult<ProductDto>?> FilterProductsAsync(ProductFilterDto filter)
     {
-        var api = await PostAsync<ApiResponse<PaginatedResult<ProductDto>>>(
-            "/api/products/filter", filter
-        );
+        var url = BuildUrl("/api/products", new()
+        {
+            { "page", filter.Page },
+            { "pageSize", filter.PageSize },
+            { "category", filter.Category },
+            { "brand", filter.Brand },
+            { "search", filter.Search },
+            { "minPrice", filter.MinPrice },
+            { "maxPrice", filter.MaxPrice },
+            { "size", filter.Size },
+            { "color", filter.Color },
+            { "sortBy", filter.Sort }
+        });
 
+        var api = await GetAsync<ApiResponse<PaginatedResult<ProductDto>>>(url);
         return api?.Data;
     }
 

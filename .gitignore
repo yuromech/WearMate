@@ -41,6 +41,7 @@ bld/
 
 # Rider
 .idea/
+.agent/
 
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt

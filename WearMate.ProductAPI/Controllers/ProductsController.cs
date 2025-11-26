@@ -27,6 +27,8 @@ public class ProductsController : ControllerBase
         [FromQuery] int pageSize = 20,
         [FromQuery] Guid? categoryId = null,
         [FromQuery] Guid? brandId = null,
+        [FromQuery] string? category = null,
+        [FromQuery] string? brand = null,
         [FromQuery] string? search = null,
         [FromQuery] bool? isFeatured = null,
         [FromQuery] decimal? minPrice = null,
@@ -37,7 +39,7 @@ public class ProductsController : ControllerBase
         try
         {
             var result = await _productService.GetProductsAsync(
-                page, pageSize, categoryId, brandId, search, isFeatured, minPrice, maxPrice, sortBy, isActive);
+                page, pageSize, categoryId, brandId, category, brand, search, isFeatured, minPrice, maxPrice, sortBy, isActive);
             return Ok(ApiResponse<PaginatedResult<ProductDto>>.SuccessResponse(result));
         }
         catch (Exception ex)

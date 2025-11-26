@@ -39,6 +39,8 @@ public partial class ProductService
         int pageSize = 20,
         Guid? categoryId = null,
         Guid? brandId = null,
+        string? category = null,
+        string? brand = null,
         string? search = null,
         bool? isFeatured = null,
         decimal? minPrice = null,
@@ -49,6 +51,23 @@ public partial class ProductService
         page = PaginationHelper.ValidatePage(page);
         pageSize = PaginationHelper.ValidatePageSize(pageSize);
         var offset = PaginationHelper.CalculateOffset(page, pageSize);
+
+        // SEO: Prioritize slug-based filtering over GUID-based
+        if (!string.IsNullOrWhiteSpace(category))
+        {
+            var categoryQuery = _supabase.From("categories").Eq("slug", category).Eq("is_active", true);
+            var categoryDto = await _supabase.GetSingleAsync<CategoryDto>(categoryQuery.Build());
+            if (categoryDto != null)
+                categoryId = categoryDto.Id;
+        }
+
+        if (!string.IsNullOrWhiteSpace(brand))
+        {
+            var brandQuery = _supabase.From("brands").Eq("slug", brand).Eq("is_active", true);
+            var brandDto = await _supabase.GetSingleAsync<BrandDto>(brandQuery.Build());
+            if (brandDto != null)
+                brandId = brandDto.Id;
+        }
 
         var query = _supabase.From("products");
         query.Select("*", "category:categories(*)", "brand:brands(*)");

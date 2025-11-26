@@ -26,9 +26,10 @@ public class ProductListViewModel
     public int TotalCount { get; set; }
     public int PageSize { get; set; } = 12;
 
-    // FILTERS
-    public Guid? SelectedCategoryId { get; set; }
-    public Guid? SelectedBrandId { get; set; }
+    // FILTERS (SEO-friendly slug-based)
+    public string? SelectedCategory { get; set; }
+    public string? SelectedBrand { get; set; }
+    
     public int? MinPrice { get; set; }
     public int? MaxPrice { get; set; }
     public string? Size { get; set; }

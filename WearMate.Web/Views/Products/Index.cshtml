@@ -28,7 +28,7 @@
                     <!-- Search -->
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3 text-uppercase small tracking-wide">Tìm kiếm</h6>
-                        <form method="get" class="position-relative">
+                        <form method="get" action="/Products" class="position-relative">
                             <input type="text"
                                    name="search"
                                    class="form-control rounded-pill ps-4"
@@ -38,10 +38,19 @@
                                 <i class="bi bi-search text-muted"></i>
                             </button>
                             
-                            <!-- Preserve other filters -->
-                            <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
-                            <input type="hidden" name="brandId" value="@Model.SelectedBrandId" />
-                            <input type="hidden" name="sort" value="@Model.Sort" />
+                            <!-- Preserve other filters (only if they have values) -->
+                            @if (!string.IsNullOrEmpty(Model.SelectedCategory))
+                            {
+                                <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                            }
+                            @if (!string.IsNullOrEmpty(Model.SelectedBrand))
+                            {
+                                <input type="hidden" name="brand" value="@Model.SelectedBrand" />
+                            }
+                            @if (!string.IsNullOrEmpty(Model.Sort))
+                            {
+                                <input type="hidden" name="sort" value="@Model.Sort" />
+                            }
                         </form>
                     </div>
 
@@ -49,25 +58,29 @@
                     <div class="mb-4">
                         <h6 class="fw-bold mb-3 text-uppercase small tracking-wide">Danh mục</h6>
                         <div class="d-flex flex-column gap-2">
-                            <a asp-action="Index"
-                               asp-route-search="@Model.SearchQuery"
-                               asp-route-brandId="@Model.SelectedBrandId"
-                               asp-route-sort="@Model.Sort"
-                               class="text-decoration-none d-flex justify-content-between align-items-center py-1 @(Model.SelectedCategoryId == null ? "fw-bold text-dark" : "text-muted")">
+                            @{
+                                var allCatUrl = "/Products";
+                                if (!string.IsNullOrEmpty(Model.SearchQuery)) allCatUrl += $"?search={Model.SearchQuery}";
+                                if (!string.IsNullOrEmpty(Model.SelectedBrand)) allCatUrl += (allCatUrl.Contains("?") ? "&" : "?") + $"brand={Model.SelectedBrand}";
+                                if (!string.IsNullOrEmpty(Model.Sort)) allCatUrl += (allCatUrl.Contains("?") ? "&" : "?") + $"sort={Model.Sort}";
+                            }
+                            <a href="@allCatUrl"
+                               class="text-decoration-none d-flex justify-content-between align-items-center py-1 @(string.IsNullOrEmpty(Model.SelectedCategory) ? "fw-bold text-dark" : "text-muted")">
                                 <span>Tất cả</span>
-                                @if(Model.SelectedCategoryId == null) { <i class="bi bi-check-lg text-primary"></i> }
+                                @if(string.IsNullOrEmpty(Model.SelectedCategory)) { <i class="bi bi-check-lg text-primary"></i> }
                             </a>
 
                             @foreach (var c in Model.Categories)
                             {
-                                <a asp-action="Index"
-                                   asp-route-categoryId="@c.Id"
-                                   asp-route-search="@Model.SearchQuery"
-                                   asp-route-brandId="@Model.SelectedBrandId"
-                                   asp-route-sort="@Model.Sort"
-                                   class="text-decoration-none d-flex justify-content-between align-items-center py-1 @(Model.SelectedCategoryId == c.Id ? "fw-bold text-dark" : "text-muted")">
+                                var catUrl = $"/Products?category={c.Slug}";
+                                if (!string.IsNullOrEmpty(Model.SearchQuery)) catUrl += $"&search={Model.SearchQuery}";
+                                if (!string.IsNullOrEmpty(Model.SelectedBrand)) catUrl += $"&brand={Model.SelectedBrand}";
+                                if (!string.IsNullOrEmpty(Model.Sort)) catUrl += $"&sort={Model.Sort}";
+                                
+                                <a href="@catUrl"
+                                   class="text-decoration-none d-flex justify-content-between align-items-center py-1 @(Model.SelectedCategory == c.Slug ? "fw-bold text-dark" : "text-muted")">
                                     <span>@c.Name</span>
-                                    @if(Model.SelectedCategoryId == c.Id) { <i class="bi bi-check-lg text-primary"></i> }
+                                    @if(Model.SelectedCategory == c.Slug) { <i class="bi bi-check-lg text-primary"></i> }
                                 </a>
                             }
                         </div>
@@ -81,14 +94,15 @@
                             <div class="d-flex flex-column gap-2">
                                 @foreach (var b in Model.Brands)
                                 {
-                                    <a asp-action="Index"
-                                       asp-route-brandId="@b.Id"
-                                       asp-route-categoryId="@Model.SelectedCategoryId"
-                                       asp-route-search="@Model.SearchQuery"
-                                       asp-route-sort="@Model.Sort"
-                                       class="text-decoration-none d-flex justify-content-between align-items-center py-1 @(Model.SelectedBrandId == b.Id ? "fw-bold text-dark" : "text-muted")">
+                                    var brandUrl = $"/Products?brand={b.Slug}";
+                                    if (!string.IsNullOrEmpty(Model.SelectedCategory)) brandUrl += $"&category={Model.SelectedCategory}";
+                                    if (!string.IsNullOrEmpty(Model.SearchQuery)) brandUrl += $"&search={Model.SearchQuery}";
+                                    if (!string.IsNullOrEmpty(Model.Sort)) brandUrl += $"&sort={Model.Sort}";
+                                    
+                                    <a href="@brandUrl"
+                                       class="text-decoration-none d-flex justify-content-between align-items-center py-1 @(Model.SelectedBrand == b.Slug ? "fw-bold text-dark" : "text-muted")">
                                         <span>@b.Name</span>
-                                        @if(Model.SelectedBrandId == b.Id) { <i class="bi bi-check-lg text-primary"></i> }
+                                        @if(Model.SelectedBrand == b.Slug) { <i class="bi bi-check-lg text-primary"></i> }
                                     </a>
                                 }
                             </div>
@@ -107,12 +121,12 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h2 class="fw-bold mb-0" style="font-family: var(--font-heading);">
-                        @(Model.SelectedCategoryId.HasValue ? Model.Categories.FirstOrDefault(c => c.Id == Model.SelectedCategoryId)?.Name : "Tất cả sản phẩm")
+                        @(!string.IsNullOrEmpty(Model.SelectedCategory) ? Model.Categories.FirstOrDefault(c => c.Slug == Model.SelectedCategory)?.Name : "Tất cả sản phẩm")
                     </h2>
                     <small class="text-muted">Hiển thị @Model.Products.Count() kết quả</small>
                 </div>
 
-                <form method="get" class="d-flex align-items-center">
+                <form method="get" action="/Products" class="d-flex align-items-center">
                     <label class="me-2 text-muted small d-none d-md-block">Sắp xếp:</label>
                     <select name="sort"
                             class="form-select form-select-sm border-0 bg-light rounded-pill px-3 py-2"
@@ -124,10 +138,19 @@
                         <option value="newest" selected="@(Model.Sort == "newest")">Mới nhất</option>
                     </select>
 
-                    <!-- Preserve state -->
-                    <input type="hidden" name="search" value="@Model.SearchQuery" />
-                    <input type="hidden" name="categoryId" value="@Model.SelectedCategoryId" />
-                    <input type="hidden" name="brandId" value="@Model.SelectedBrandId" />
+                    <!-- Preserve state (only if values exist) -->
+                    @if (!string.IsNullOrEmpty(Model.SearchQuery))
+                    {
+                        <input type="hidden" name="search" value="@Model.SearchQuery" />
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SelectedCategory))
+                    {
+                        <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SelectedBrand))
+                    {
+                        <input type="hidden" name="brand" value="@Model.SelectedBrand" />
+                    }
                 </form>
             </div>
 
@@ -187,15 +210,16 @@
                         <ul class="pagination justify-content-center gap-2">
                             @for (int i = 1; i <= Model.TotalPages; i++)
                             {
+                                var pageUrl = $"/Products?page={i}";
+                                if (!string.IsNullOrEmpty(Model.SelectedCategory)) pageUrl += $"&category={Model.SelectedCategory}";
+                                if (!string.IsNullOrEmpty(Model.SearchQuery)) pageUrl += $"&search={Model.SearchQuery}";
+                                if (!string.IsNullOrEmpty(Model.SelectedBrand)) pageUrl += $"&brand={Model.SelectedBrand}";
+                                if (!string.IsNullOrEmpty(Model.Sort)) pageUrl += $"&sort={Model.Sort}";
+                                
                                 <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
                                     <a class="page-link rounded-circle d-flex align-items-center justify-content-center border-0 @(i == Model.CurrentPage ? "bg-dark text-white" : "bg-light text-dark")"
                                        style="width: 40px; height: 40px;"
-                                       asp-action="Index"
-                                       asp-route-page="@i"
-                                       asp-route-categoryId="@Model.SelectedCategoryId"
-                                       asp-route-search="@Model.SearchQuery"
-                                       asp-route-brandId="@Model.SelectedBrandId"
-                                       asp-route-sort="@Model.Sort">
+                                       href="@pageUrl">
                                         @i
                                     </a>
                                 </li>
@@ -212,7 +236,7 @@
                     </div>
                     <h5 class="fw-bold">Không tìm thấy sản phẩm nào</h5>
                     <p class="text-muted">Thử thay đổi bộ lọc hoặc tìm kiếm từ khóa khác.</p>
-                    <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4">Xóa bộ lọc</a>
+                    <a href="/Products" class="btn btn-outline-dark rounded-pill px-4">Xóa bộ lọc</a>
                 </div>
             }
 
