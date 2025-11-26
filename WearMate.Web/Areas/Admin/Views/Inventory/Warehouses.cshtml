@@ -1,0 +1,106 @@
+@model List<WearMate.Shared.DTOs.Inventory.WarehouseDto>
+@{
+    ViewData["Title"] = "Warehouses";
+    var search = ViewBag.Search as string ?? string.Empty;
+    var includeInactive = ViewBag.IncludeInactive as bool? ?? true;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1"><i class="bi bi-building"></i> Warehouses</h2>
+        <div class="text-muted small">Manage warehouse info. Inactive warehouses cannot be used for stock ops.</div>
+    </div>
+    <a asp-action="CreateWarehouse" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Warehouse
+    </a>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-box"></i> Inventory Home
+    </a>
+</div>
+
+<div class="card mb-3 shadow-sm">
+    <div class="card-body">
+        <form class="row g-3 align-items-center" method="get">
+            <div class="col-md-6">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" value="@search" class="form-control" placeholder="Name, code, address" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check form-switch mt-4 pt-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="includeInactive" name="includeInactive" value="true" @(includeInactive ? "checked" : "") />
+                    <label class="form-check-label" for="includeInactive">Show inactive</label>
+                </div>
+            </div>
+            <div class="col-md-3 d-flex gap-2 justify-content-md-end">
+                <button type="submit" class="btn btn-outline-secondary mt-3 mt-md-0">
+                    <i class="bi bi-filter-circle"></i> Apply
+                </button>
+                <a asp-action="Warehouses" class="btn btn-outline-light border mt-3 mt-md-0">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Address</th>
+                        <th>Phone</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Any())
+                    {
+                        foreach (var wh in Model)
+                        {
+                            <tr class="@(!wh.IsActive ? "table-secondary" : "")">
+                                <td class="fw-semibold">@wh.Name</td>
+                                <td><code>@wh.Code</code></td>
+                                <td>@(string.IsNullOrWhiteSpace(wh.Address) ? "—" : wh.Address)</td>
+                                <td>@(string.IsNullOrWhiteSpace(wh.Phone) ? "—" : wh.Phone)</td>
+                                <td class="text-center">
+                                    <span class="badge @(wh.IsActive ? "bg-success" : "bg-secondary")">
+                                        @(wh.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-action="EditWarehouse" asp-route-id="@wh.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        @if (wh.IsActive)
+                                        {
+                                            <form asp-action="DeactivateWarehouse" asp-route-id="@wh.Id" method="post" class="d-inline" onsubmit="return confirm('Deactivate this warehouse?');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-slash-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No warehouses found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

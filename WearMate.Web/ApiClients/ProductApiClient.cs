@@ -1,4 +1,5 @@
-﻿using WearMate.Shared.DTOs.Common;
+using Microsoft.AspNetCore.Http;
+using WearMate.Shared.DTOs.Common;
 using WearMate.Shared.DTOs.Products;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -75,16 +76,145 @@ public class ProductApiClient : BaseApiClient
     //  CATEGORY & BRAND
     // =============================================================
 
-    public async Task<List<CategoryDto>?> GetCategoriesAsync()
+    public async Task<List<CategoryDto>?> GetCategoriesAsync(bool includeInactive = false, string? search = null)
     {
-        var api = await GetAsync<ApiResponse<List<CategoryDto>>>("/api/categories");
+        var url = BuildUrl("/api/categories", new()
+        {
+            { "includeInactive", includeInactive },
+            { "search", search }
+        });
+
+        var api = await GetAsync<ApiResponse<List<CategoryDto>>>(url);
         return api?.Data;
     }
 
-
-    public async Task<List<BrandDto>?> GetBrandsAsync()
+    public async Task<CategoryDto?> GetCategoryAsync(Guid id)
     {
-        var api = await GetAsync<ApiResponse<List<BrandDto>>>("/api/brands");
+        var api = await GetAsync<ApiResponse<CategoryDto>>($"/api/categories/{id}");
+        return api?.Data;
+    }
+
+    public async Task<ApiResponse<CategoryDto>?> CreateCategoryAsync(CreateCategoryDto dto)
+    {
+        var response = await _http.PostAsJsonAsync("/api/categories", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<CategoryDto>>(json, _json);
+    }
+
+    public async Task<ApiResponse<CategoryDto>?> UpdateCategoryAsync(Guid id, CreateCategoryDto dto)
+    {
+        var response = await _http.PutAsJsonAsync($"/api/categories/{id}", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<CategoryDto>>(json, _json);
+    }
+
+    public async Task<ApiResponse<bool>?> DeleteCategoryAsync(Guid id)
+    {
+        var response = await _http.DeleteAsync($"/api/categories/{id}");
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<bool>>(json, _json);
+    }
+
+    public async Task<ApiResponse<bool>?> DeactivateCategoryAsync(Guid id)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/categories/{id}/deactivate");
+        var response = await _http.SendAsync(request);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<bool>>(json, _json);
+    }
+
+    public async Task<ApiResponse<bool>?> ReactivateCategoryAsync(Guid id)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/categories/{id}/reactivate");
+        var response = await _http.SendAsync(request);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<bool>>(json, _json);
+    }
+
+    public async Task<ApiResponse<BrandDto>?> CreateBrandAsync(CreateBrandDto dto)
+    {
+        var response = await _http.PostAsJsonAsync("/api/brands", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<BrandDto>>(json, _json);
+    }
+
+    public async Task<ApiResponse<BrandDto>?> UpdateBrandAsync(Guid id, CreateBrandDto dto)
+    {
+        var response = await _http.PutAsJsonAsync($"/api/brands/{id}", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<BrandDto>>(json, _json);
+    }
+
+    public async Task<ApiResponse<bool>?> DeleteBrandAsync(Guid id)
+    {
+        var response = await _http.DeleteAsync($"/api/brands/{id}");
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<bool>>(json, _json);
+    }
+
+    public async Task<ApiResponse<bool>?> DeactivateBrandAsync(Guid id)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/brands/{id}/deactivate");
+        var response = await _http.SendAsync(request);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<bool>>(json, _json);
+    }
+
+    public async Task<ApiResponse<bool>?> ReactivateBrandAsync(Guid id)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/brands/{id}/reactivate");
+        var response = await _http.SendAsync(request);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<bool>>(json, _json);
+    }
+
+    public async Task<ApiResponse<string>?> UploadBrandLogoAsync(IFormFile file, string? currentLogoUrl = null)
+    {
+        using var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(file.OpenReadStream());
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType ?? "application/octet-stream");
+        content.Add(streamContent, "file", file.FileName);
+        if (!string.IsNullOrWhiteSpace(currentLogoUrl))
+            content.Add(new StringContent(currentLogoUrl), "currentLogoUrl");
+
+        var response = await _http.PostAsync("/api/brands/upload-logo", content);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<string>>(json, _json);
+    }
+
+    public async Task<ApiResponse<string>?> UploadCategoryImageAsync(IFormFile file, string? currentImageUrl = null)
+    {
+        using var content = new MultipartFormDataContent();
+
+        var streamContent = new StreamContent(file.OpenReadStream());
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType ?? "application/octet-stream");
+        content.Add(streamContent, "file", file.FileName);
+
+        if (!string.IsNullOrWhiteSpace(currentImageUrl))
+        {
+            content.Add(new StringContent(currentImageUrl), "currentImageUrl");
+        }
+
+        var response = await _http.PostAsync("/api/categories/upload-image", content);
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ApiResponse<string>>(json, _json);
+    }
+
+
+    public async Task<List<BrandDto>?> GetBrandsAsync(bool includeInactive = false, string? search = null)
+    {
+        var url = BuildUrl("/api/brands", new()
+        {
+            { "includeInactive", includeInactive },
+            { "search", search }
+        });
+        var api = await GetAsync<ApiResponse<List<BrandDto>>>(url);
+        return api?.Data;
+    }
+
+    public async Task<BrandDto?> GetBrandAsync(Guid id)
+    {
+        var api = await GetAsync<ApiResponse<BrandDto>>($"/api/brands/{id}");
         return api?.Data;
     }
 
@@ -226,7 +356,16 @@ public class ProductApiClient : BaseApiClient
         var query = string.Join("&",
             queryParams
                 .Where(kv => kv.Value != null && kv.Value.ToString() != "")
-                .Select(kv => $"{kv.Key}={kv.Value}")
+                .Select(kv =>
+                {
+                    var stringValue = kv.Value switch
+                    {
+                        bool b => b.ToString().ToLowerInvariant(),
+                        _ => kv.Value?.ToString() ?? string.Empty
+                    };
+
+                    return $"{kv.Key}={Uri.EscapeDataString(stringValue)}";
+                })
         );
 
         return string.IsNullOrEmpty(query) ? baseUrl : $"{baseUrl}?{query}";

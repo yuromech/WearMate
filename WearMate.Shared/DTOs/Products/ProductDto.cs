@@ -1,4 +1,6 @@
-﻿namespace WearMate.Shared.DTOs.Products;
+using System.ComponentModel.DataAnnotations;
+
+namespace WearMate.Shared.DTOs.Products;
 
 public class CategoryDto
 {
@@ -37,6 +39,8 @@ public class ProductDto
     public decimal? SalePrice { get; set; }
     public string? Sku { get; set; }
     public string? ThumbnailUrl { get; set; }
+    public string? MetaTitle { get; set; }
+    public string? MetaDescription { get; set; }
     public bool IsFeatured { get; set; }
     public bool IsActive { get; set; }
     public int ViewCount { get; set; }
@@ -102,6 +106,9 @@ public class CreateProductDto
     public decimal BasePrice { get; set; }
     public decimal? SalePrice { get; set; }
     public string? Sku { get; set; }
+    public string? MetaTitle { get; set; }
+    public string? MetaDescription { get; set; }
+    public string? ThumbnailUrl { get; set; }
     public bool IsFeatured { get; set; }
     public bool IsActive { get; set; } = true;
     public List<CreateProductVariantDto>? Variants { get; set; }
@@ -110,24 +117,36 @@ public class CreateProductDto
 public class CreateProductWithImagesDto : CreateProductDto
 {
     public List<string>? Images { get; set; }
-    public string? ThumbnailUrl { get; set; }
+    public new string? ThumbnailUrl { get; set; }
 }
 
 public class CreateCategoryDto
 {
+    [Required(ErrorMessage = "Name is required")]
     public string Name { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Slug is required")]
     public string Slug { get; set; } = string.Empty;
+
     public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
     public Guid? ParentId { get; set; }
+
+    [Range(0, int.MaxValue, ErrorMessage = "DisplayOrder must be a non-negative integer")]
     public int DisplayOrder { get; set; }
+
     public bool IsActive { get; set; } = true;
 }
 
 public class CreateBrandDto
 {
+    [Required(ErrorMessage = "Name is required")]
     public string Name { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Slug is required")]
     public string Slug { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? LogoUrl { get; set; }
     public bool IsActive { get; set; } = true;
 }
 

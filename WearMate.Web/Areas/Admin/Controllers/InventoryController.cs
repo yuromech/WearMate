@@ -37,6 +37,109 @@ public class InventoryController : Controller
         return View(viewModel);
     }
 
+    // === Warehouses Management ===
+    [HttpGet]
+    public async Task<IActionResult> Warehouses(string? search = null, bool includeInactive = true)
+    {
+        var warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var kw = search.Trim().ToLowerInvariant();
+            warehouses = warehouses
+                .Where(w => w.Name.ToLowerInvariant().Contains(kw)
+                         || w.Code.ToLowerInvariant().Contains(kw)
+                         || (!string.IsNullOrWhiteSpace(w.Address) && w.Address.ToLowerInvariant().Contains(kw)))
+                .ToList();
+        }
+        if (!includeInactive)
+            warehouses = warehouses.Where(w => w.IsActive).ToList();
+
+        ViewBag.Search = search;
+        ViewBag.IncludeInactive = includeInactive;
+        return View(warehouses);
+    }
+
+    [HttpGet]
+    public IActionResult CreateWarehouse()
+    {
+        return View("WarehouseForm", new CreateWarehouseDto { IsActive = true });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateWarehouse(CreateWarehouseDto model)
+    {
+        if (string.IsNullOrWhiteSpace(model.Name))
+            ModelState.AddModelError(nameof(model.Name), "Name is required");
+        if (string.IsNullOrWhiteSpace(model.Code))
+            ModelState.AddModelError(nameof(model.Code), "Code is required");
+
+        if (!ModelState.IsValid)
+            return View("WarehouseForm", model);
+
+        var result = await _inventoryApi.CreateWarehouseAsync(model);
+        if (result != null)
+        {
+            TempData["Success"] = "Warehouse created successfully!";
+            return RedirectToAction(nameof(Warehouses));
+        }
+
+        TempData["Error"] = "Failed to create warehouse";
+        return View("WarehouseForm", model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EditWarehouse(Guid id)
+    {
+        var wh = await _inventoryApi.GetWarehouseByIdAsync(id);
+        if (wh == null) return NotFound();
+
+        var model = new CreateWarehouseDto
+        {
+            Name = wh.Name,
+            Code = wh.Code,
+            Address = wh.Address,
+            Phone = wh.Phone,
+            IsActive = wh.IsActive
+        };
+
+        ViewBag.WarehouseId = id;
+        return View("WarehouseForm", model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditWarehouse(Guid id, CreateWarehouseDto model)
+    {
+        if (string.IsNullOrWhiteSpace(model.Name))
+            ModelState.AddModelError(nameof(model.Name), "Name is required");
+        if (string.IsNullOrWhiteSpace(model.Code))
+            ModelState.AddModelError(nameof(model.Code), "Code is required");
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.WarehouseId = id;
+            return View("WarehouseForm", model);
+        }
+
+        var updated = await _inventoryApi.UpdateWarehouseAsync(id, model);
+        if (updated != null)
+        {
+            TempData["Success"] = "Warehouse updated successfully!";
+            return RedirectToAction(nameof(Warehouses));
+        }
+
+        TempData["Error"] = "Failed to update warehouse";
+        ViewBag.WarehouseId = id;
+        return View("WarehouseForm", model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeactivateWarehouse(Guid id)
+    {
+        var ok = await _inventoryApi.DeleteWarehouseAsync(id);
+        TempData[ok ? "Success" : "Error"] = ok ? "Warehouse deactivated" : "Failed to deactivate warehouse";
+        return RedirectToAction(nameof(Warehouses));
+    }
+
     public async Task<IActionResult> Logs(Guid? warehouseId = null, int page = 1)
     {
         var viewModel = new InventoryLogsViewModel

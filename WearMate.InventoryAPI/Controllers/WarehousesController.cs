@@ -76,6 +76,14 @@ public class WarehousesController : ControllerBase
             return CreatedAtAction(nameof(GetWarehouse), new { id = warehouse!.Id },
                 ApiResponse<WarehouseDto>.SuccessResponse(warehouse, "Warehouse created"));
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<WarehouseDto>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ApiResponse<WarehouseDto>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating warehouse");
@@ -93,6 +101,14 @@ public class WarehousesController : ControllerBase
                 return NotFound(ApiResponse<WarehouseDto>.ErrorResponse("Warehouse not found"));
             return Ok(ApiResponse<WarehouseDto>.SuccessResponse(warehouse, "Warehouse updated"));
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<WarehouseDto>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ApiResponse<WarehouseDto>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating warehouse");
@@ -108,7 +124,7 @@ public class WarehousesController : ControllerBase
             var result = await _warehouseService.DeleteWarehouseAsync(id);
             if (!result)
                 return NotFound(ApiResponse<bool>.ErrorResponse("Warehouse not found"));
-            return Ok(ApiResponse<bool>.SuccessResponse(true, "Warehouse deleted"));
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Warehouse deactivated"));
         }
         catch (Exception ex)
         {

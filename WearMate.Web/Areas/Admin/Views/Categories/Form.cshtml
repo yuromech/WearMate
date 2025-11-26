@@ -1,0 +1,137 @@
+@model WearMate.Shared.DTOs.Products.CreateCategoryDto
+@using WearMate.Shared.DTOs.Products
+@{
+    var categories = ViewBag.Categories as List<CategoryDto> ?? new();
+    var isEdit = ViewBag.IsEdit as bool? ?? false;
+    var categoryId = ViewBag.CategoryId as Guid?;
+    var currentImage = ViewBag.CurrentImageUrl as string;
+    ViewData["Title"] = isEdit ? "Edit Category" : "Create Category";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">
+        <i class="bi @(isEdit ? "bi-pencil-square" : "bi-plus-circle")"></i>
+        @(isEdit ? "Edit Category" : "Add Category")
+    </h2>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to list
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="@(isEdit ? "Edit" : "Create")"
+              asp-route-id="@(categoryId)"
+              method="post"
+              enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+            <input type="hidden" asp-for="ImageUrl" />
+
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Name *</label>
+                        <input asp-for="Name" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Slug" class="form-label">Slug *</label>
+                            <input asp-for="Slug" class="form-control" autocomplete="off" />
+                            <small class="text-muted">Auto-generated from name, but can be edited.</small>
+                            <span asp-validation-for="Slug" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ParentId" class="form-label">Parent Category</label>
+                            <select asp-for="ParentId" class="form-select">
+                                <option value="">-- No parent --</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat.Id" selected="@(Model.ParentId.HasValue && Model.ParentId.Value == cat.Id ? "selected" : null)">
+                                        @cat.Name
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="ParentId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                            <input asp-for="DisplayOrder" class="form-control" type="number" min="0" />
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <label class="form-label">Image</label>
+                    <div class="border rounded-3 p-3 text-center">
+                        <div class="mb-3">
+                            <img id="categoryPreview"
+                                 src="@(Model.ImageUrl ?? currentImage ?? "https://placehold.co/320x200?text=Category")"
+                                 class="img-fluid rounded border"
+                                 alt="Category image preview"
+                                 style="max-height: 220px; object-fit: cover; width: 100%;" />
+                        </div>
+                        <div class="d-grid gap-2">
+                            <input type="file" name="imageFile" class="form-control" accept="image/*" aria-label="Upload image" />
+                            <small class="text-muted">Accepted: jpg, png, webp. Max ~5MB.</small>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                        {
+                            <div class="alert alert-secondary mt-3 py-2 mb-0 small">
+                                <div class="fw-semibold">Current URL</div>
+                                <div class="text-truncate">@Model.ImageUrl</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> @(isEdit ? "Update" : "Save")
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-slug.js"></script>
+    <script>
+        const nameInput = document.querySelector('input[name="Name"]');
+        const slugInput = document.querySelector('input[name="Slug"]');
+        const fileInput = document.querySelector('input[name="imageFile"]');
+        const previewImg = document.getElementById('categoryPreview');
+
+        window.slugHelper.attachSlugAuto(nameInput, slugInput);
+
+        fileInput?.addEventListener('change', (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                previewImg.src = ev.target?.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+}

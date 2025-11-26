@@ -184,6 +184,10 @@ public partial class ProductService
 
     public async Task<ProductDto?> CreateProductAsync(CreateProductWithImagesDto dto)
     {
+        if (dto.BasePrice <= 0) throw new ArgumentException("Base price must be greater than 0");
+        if (dto.SalePrice.HasValue && dto.SalePrice.Value > dto.BasePrice)
+            throw new ArgumentException("Sale price cannot exceed base price");
+
         // Slug safety: generate and ensure uniqueness
         var baseSlug = !string.IsNullOrWhiteSpace(dto.Slug) ? dto.Slug : dto.Name;
         var slug = await GenerateUniqueSlugAsync(baseSlug ?? Guid.NewGuid().ToString());
@@ -211,6 +215,8 @@ public partial class ProductService
             base_price = dto.BasePrice,
             sale_price = dto.SalePrice,
             sku = dto.Sku,
+            meta_title = dto.MetaTitle,
+            meta_description = dto.MetaDescription,
             is_featured = dto.IsFeatured,
             is_active = dto.IsActive,
             thumbnail_url = thumbnail,
@@ -258,6 +264,10 @@ public partial class ProductService
 
     public async Task<ProductDto?> UpdateProductAsync(Guid id, CreateProductDto dto)
     {
+        if (dto.BasePrice <= 0) throw new ArgumentException("Base price must be greater than 0");
+        if (dto.SalePrice.HasValue && dto.SalePrice.Value > dto.BasePrice)
+            throw new ArgumentException("Sale price cannot exceed base price");
+
         var baseSlug = !string.IsNullOrWhiteSpace(dto.Slug) ? dto.Slug : dto.Name;
         var slug = await GenerateUniqueSlugAsync(baseSlug ?? Guid.NewGuid().ToString(), id);
 
@@ -272,8 +282,11 @@ public partial class ProductService
             base_price = dto.BasePrice,
             sale_price = dto.SalePrice,
             sku = dto.Sku,
+            meta_title = dto.MetaTitle,
+            meta_description = dto.MetaDescription,
             is_featured = dto.IsFeatured,
             is_active = dto.IsActive,
+            thumbnail_url = dto.ThumbnailUrl,
             updated_at = DateTime.UtcNow
         };
 
@@ -739,21 +752,6 @@ public partial class ProductService
         }
     }
 
-    private static string Slugify(string text)
-    {
-        if (string.IsNullOrWhiteSpace(text)) return Guid.NewGuid().ToString();
-        var normalized = text.Normalize(NormalizationForm.FormKD);
-        var sb = new StringBuilder();
-        foreach (var ch in normalized)
-        {
-            if (char.IsLetterOrDigit(ch) || ch == ' ' || ch == '-') sb.Append(ch);
-        }
-        var slug = sb.ToString().ToLowerInvariant().Trim();
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, "\\s+", "-");
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, "-+", "-");
-        return slug;
-    }
-
     public async Task<List<ProductVariantDto>> GetVariantsByProductAsync(Guid productId)
     {
         var query = _supabase.From("product_variants").Eq("product_id", productId).Eq("is_active", true);
@@ -808,7 +806,7 @@ public partial class ProductService
 
     private async Task<string> GenerateUniqueSlugAsync(string input, Guid? currentId = null)
     {
-        var baseSlug = Slugify(input);
+        var baseSlug = SlugHelper.Slugify(input, "product");
         var slug = baseSlug;
         int counter = 1;
 
@@ -838,7 +836,7 @@ public partial class ProductService
 
     private async Task<string> GenerateUniqueVariantSkuAsync(string input, Guid? currentId = null)
     {
-        var baseSku = Slugify(input);
+        var baseSku = SlugHelper.Slugify(input, "sku");
         if (string.IsNullOrWhiteSpace(baseSku))
             baseSku = "sku";
 
@@ -882,7 +880,7 @@ public partial class ProductService
             ? requestedSku
             : $"{productSlug}-{color}-{size}";
 
-        var baseSku = Slugify(basePart);
+        var baseSku = SlugHelper.Slugify(basePart, "sku");
         if (string.IsNullOrWhiteSpace(baseSku))
             baseSku = "sku";
 

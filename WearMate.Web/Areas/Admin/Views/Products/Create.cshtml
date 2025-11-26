@@ -85,10 +85,19 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label">Full Description</label>
-                <textarea asp-for="Description" class="form-control" rows="5"></textarea>
-            </div>
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Full Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                        <input asp-for="MetaTitle" class="form-control" maxlength="160" />
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3" maxlength="320"></textarea>
+                    </div>
 
             <hr />
 
@@ -112,6 +121,12 @@
             <hr />
 
             <div class="mb-3">
+                <label class="form-label">Thumbnail Image</label>
+                <input type="file" name="thumbnailFile" class="form-control" accept="image/*" />
+                <small class="text-muted">If not provided, first gallery image will be used.</small>
+            </div>
+
+            <div class="mb-3">
                 <label class="form-label">Product Images</label>
                 <input type="file" id="images" name="images" class="form-control" accept="image/*" multiple />
                 <small class="form-text text-muted">You can upload multiple images. The first image will be used as thumbnail if supported.</small>
@@ -132,28 +147,17 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/admin-slug.js"></script>
     <script>
-        function slugify(text) {
-            return text
-                .toString()
-                .toLowerCase()
-                .normalize('NFKD')
-                .replace(/\p{Diacritic}/gu, '')
-                .replace(/[^a-z0-9\s-]/g, '')
-                .trim()
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-');
-        }
-
         const nameInput = document.querySelector('input[name="Name"]');
         const slugInput = document.querySelector('input[name="Slug"]');
         const imagesInput = document.getElementById('images');
         const preview = document.getElementById('preview');
         const generateBtn = document.getElementById('generateFromImage');
 
-        nameInput?.addEventListener('input', function(e) {
-            slugInput.value = slugify(e.target.value || '');
-        });
+        window.slugHelper.attachSlugAuto(nameInput, slugInput);
+        window.slugHelper.attachSlugFromFileInput(imagesInput, slugInput, nameInput);
+        window.slugHelper.attachSlugFromButton(generateBtn, imagesInput, slugInput, nameInput);
 
         imagesInput?.addEventListener('change', function(e) {
             preview.innerHTML = '';
@@ -169,19 +173,6 @@
                 preview.appendChild(img);
             });
 
-            // If slug empty, generate from first image filename
-            if (!slugInput.value && files.length > 0) {
-                const firstName = files[0].name.split('.').slice(0, -1).join('.');
-                slugInput.value = slugify(firstName || nameInput.value || '');
-            }
-        });
-
-        generateBtn?.addEventListener('click', function() {
-            const files = Array.from(imagesInput.files || []);
-            if (files.length > 0) {
-                const firstName = files[0].name.split('.').slice(0, -1).join('.');
-                slugInput.value = slugify(firstName || nameInput.value || '');
-            }
         });
 
         // Variant management

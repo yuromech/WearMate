@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using WearMate.ProductAPI.Services;
 using WearMate.Shared.DTOs.Common;
 using WearMate.Shared.DTOs.Products;
@@ -22,11 +23,11 @@ public class CategoriesController : ControllerBase
     /// GET /api/categories - Get all categories
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetCategories([FromQuery] bool includeInactive = false)
+    public async Task<ActionResult<ApiResponse<List<CategoryDto>>>> GetCategories([FromQuery] bool includeInactive = false, [FromQuery] string? search = null)
     {
         try
         {
-            var categories = await _categoryService.GetAllCategoriesAsync(includeInactive);
+            var categories = await _categoryService.GetAllCategoriesAsync(includeInactive, search);
             return Ok(ApiResponse<List<CategoryDto>>.SuccessResponse(categories));
         }
         catch (Exception ex)
@@ -141,6 +142,14 @@ public class CategoriesController : ControllerBase
             return CreatedAtAction(nameof(GetCategory), new { id = category.Id },
                 ApiResponse<CategoryDto>.SuccessResponse(category, "Category created successfully"));
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<CategoryDto>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ApiResponse<CategoryDto>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating category");
@@ -168,6 +177,14 @@ public class CategoriesController : ControllerBase
 
             return Ok(ApiResponse<CategoryDto>.SuccessResponse(category, "Category updated successfully"));
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<CategoryDto>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ApiResponse<CategoryDto>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating category {CategoryId}", id);
@@ -190,6 +207,10 @@ public class CategoriesController : ControllerBase
                 return NotFound(ApiResponse<bool>.ErrorResponse("Category not found"));
 
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Category deleted permanently"));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<bool>.ErrorResponse(ex.Message));
         }
         catch (Exception ex)
         {
@@ -219,6 +240,55 @@ public class CategoriesController : ControllerBase
             _logger.LogError(ex, "Error reactivating category {CategoryId}", id);
             return StatusCode(500, ApiResponse<bool>.ErrorResponse(
                 "Error reactivating category", new List<string> { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// PATCH /api/categories/{id}/deactivate - Deactivate category
+    /// </summary>
+    [HttpPatch("{id:guid}/deactivate")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeactivateCategory(Guid id)
+    {
+        try
+        {
+            var result = await _categoryService.DeactivateCategoryAsync(id);
+
+            if (!result)
+                return NotFound(ApiResponse<bool>.ErrorResponse("Category not found"));
+
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Category deactivated successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deactivating category {CategoryId}", id);
+            return StatusCode(500, ApiResponse<bool>.ErrorResponse(
+                "Error deactivating category", new List<string> { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// POST /api/categories/upload-image - upload an image and return public URL
+    /// </summary>
+    [HttpPost("upload-image")]
+    public async Task<ActionResult<ApiResponse<string>>> UploadImage([FromForm] IFormFile file, [FromForm] string? currentImageUrl = null)
+    {
+        try
+        {
+            if (file == null)
+                return BadRequest(ApiResponse<string>.ErrorResponse("No file uploaded"));
+
+            var url = await _categoryService.UploadCategoryImageAsync(file, currentImageUrl);
+            return Ok(ApiResponse<string>.SuccessResponse(url ?? string.Empty, "Uploaded category image successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading category image");
+            return StatusCode(500, ApiResponse<string>.ErrorResponse(
+                "Error uploading image", new List<string> { ex.Message }));
         }
     }
 }

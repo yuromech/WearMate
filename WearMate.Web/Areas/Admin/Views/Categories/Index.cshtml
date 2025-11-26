@@ -1,49 +1,83 @@
-﻿@model IEnumerable<WearMate.Shared.DTOs.Products.CategoryDto>
+@model IEnumerable<WearMate.Shared.DTOs.Products.CategoryDto>
+@using WearMate.Shared.DTOs.Products
 @{
     ViewData["Title"] = "Categories Management";
-    var includeInactive = ViewBag.IncludeInactive ?? false;
+    var includeInactive = ViewBag.IncludeInactive as bool? ?? false;
+    var search = ViewBag.Search as string ?? string.Empty;
+    var categories = Model?.ToList() ?? new List<CategoryDto>();
+    var parentLookup = categories.ToDictionary(c => c.Id, c => c.Name);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-tags"></i> Categories</h2>
-    <div class="d-flex gap-2">
-        <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="showInactive" 
-                   @(includeInactive ? "checked" : "")
-                   onchange="window.location.href='@Url.Action("Index")?includeInactive=' + this.checked">
-            <label class="form-check-label" for="showInactive">
-                Show Inactive
-            </label>
-        </div>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Add Category
-        </a>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-tags"></i> Categories</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add Category
+    </a>
 </div>
 
-<div class="card">
+<form method="get" class="card mb-3 shadow-sm" id="categoryFilterForm">
+    <div class="card-body row g-3 align-items-center">
+        <div class="col-md-5">
+            <label class="form-label fw-semibold">Search</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" name="search" value="@search" class="form-control" placeholder="Name or slug" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check form-switch mt-4 pt-2">
+                <input class="form-check-input" type="checkbox" role="switch" id="includeInactive" name="includeInactive" value="true" @(includeInactive ? "checked" : "") />
+                <label class="form-check-label" for="includeInactive">Show inactive</label>
+            </div>
+        </div>
+        <div class="col-md-4 text-md-end d-flex gap-2 justify-content-md-end">
+            <button type="submit" class="btn btn-outline-secondary mt-3 mt-md-0">
+                <i class="bi bi-filter-circle"></i> Apply
+            </button>
+            <a asp-action="Index" class="btn btn-outline-light border mt-3 mt-md-0">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </a>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
+            <table class="table align-middle">
+                <thead class="table-light">
                     <tr>
-                        <th>Name</th>
+                        <th style="width: 30%">Category</th>
                         <th>Slug</th>
-                        <th>Display Order</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th style="width: 18%">Parent</th>
+                        <th class="text-center" style="width: 10%">Order</th>
+                        <th class="text-center" style="width: 12%">Status</th>
+                        <th class="text-end" style="width: 20%">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null && Model.Any())
+                    @if (categories.Any())
                     {
-                        @foreach (var category in Model)
+                        foreach (var category in categories)
                         {
                             <tr class="@(!category.IsActive ? "table-secondary" : "")">
-                                <td><strong>@category.Name</strong></td>
-                                <td><code>@category.Slug</code></td>
-                                <td>@category.DisplayOrder</td>
                                 <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@(string.IsNullOrWhiteSpace(category.ImageUrl) ? "https://placehold.co/64x64?text=IMG" : category.ImageUrl)"
+                                             class="rounded border" style="width:64px;height:64px;object-fit:cover;" alt="@category.Name" />
+                                        <div>
+                                            <div class="fw-semibold">@category.Name</div>
+                                            @if (!string.IsNullOrWhiteSpace(category.Description))
+                                            {
+                                                <div class="text-muted small">@category.Description</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><code>@category.Slug</code></td>
+                                <td>@(category.ParentId.HasValue && parentLookup.ContainsKey(category.ParentId.Value) ? parentLookup[category.ParentId.Value] : "—")</td>
+                                <td class="text-center">@category.DisplayOrder</td>
+                                <td class="text-center">
                                     @if (category.IsActive)
                                     {
                                         <span class="badge bg-success">Active</span>
@@ -53,37 +87,36 @@
                                         <span class="badge bg-secondary">Inactive</span>
                                     }
                                 </td>
-                                <td class="table-actions">
-                                    @if (category.IsActive)
-                                    {
-                                        <form asp-action="Deactivate" asp-route-id="@category.Id" method="post" class="d-inline"
-                                              onsubmit="return confirm('Deactivate this category? Products can remain but the category will be hidden.');">
-                                            <button type="submit" class="btn btn-sm btn-warning">
-                                                <i class="bi bi-slash-circle"></i> Deactivate
-                                            </button>
-                                        </form>
+                                <td class="text-end">
+                                    <div class="d-inline-flex gap-2">
+                                        <a asp-action="Edit" asp-route-id="@category.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        @if (category.IsActive)
+                                        {
+                                            <form asp-action="Deactivate" asp-route-id="@category.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Deactivate this category?');">
+                                                <button type="submit" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-eye-slash"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="Reactivate" asp-route-id="@category.Id" method="post" class="d-inline"
+                                                  onsubmit="return confirm('Reactivate this category?');">
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </form>
+                                        }
                                         <form asp-action="Delete" asp-route-id="@category.Id" method="post" class="d-inline"
-                                              onsubmit="return confirm('Permanently delete this category? This cannot be undone.');">
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    }
-                                    else
-                                    {
-                                        <form asp-action="Reactivate" asp-route-id="@category.Id" method="post" class="d-inline"
-                                              onsubmit="return confirm('Reactivate this category?');">
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="bi bi-arrow-clockwise"></i> Reactivate
-                                            </button>
-                                        </form>
-                                        <form asp-action="Delete" asp-route-id="@category.Id" method="post" class="d-inline"
-                                              onsubmit="return confirm('Permanently delete this category? This cannot be undone.');">
+                                              onsubmit="return confirm('Delete this category? This cannot be undone.');">
                                             <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 <i class="bi bi-trash"></i>
                                             </button>
                                         </form>
-                                    }
+                                    </div>
                                 </td>
                             </tr>
                         }
@@ -91,7 +124,9 @@
                     else
                     {
                         <tr>
-                            <td colspan="5" class="text-center">No categories found</td>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No categories found.
+                            </td>
                         </tr>
                     }
                 </tbody>

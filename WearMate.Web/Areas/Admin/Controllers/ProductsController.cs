@@ -52,7 +52,7 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(CreateProductDto model, List<IFormFile> images)
+    public async Task<IActionResult> Create(CreateProductDto model, List<IFormFile> images, IFormFile? thumbnailFile)
     {
         if (!ModelState.IsValid)
         {
@@ -64,6 +64,23 @@ public class ProductsController : Controller
         try
         {
             var uploadedUrls = new List<string>();
+            string? thumbnailUrl = null;
+
+            if (thumbnailFile != null)
+            {
+                using var thumbMultipart = new MultipartFormDataContent();
+                var streamContent = new StreamContent(thumbnailFile.OpenReadStream());
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(thumbnailFile.ContentType ?? "application/octet-stream");
+                thumbMultipart.Add(streamContent, "files", thumbnailFile.FileName);
+                thumbMultipart.Add(new StringContent(model.Name ?? ""), "prefix");
+
+                var uploads = await _productApi.UploadImagesViaClientAsync(thumbMultipart);
+                if (uploads != null)
+                {
+                    thumbnailUrl = uploads.FirstOrDefault(u => !string.IsNullOrEmpty(u.OriginalUrl))?.OriginalUrl;
+                }
+            }
+
             if (images != null && images.Count > 0)
             {
                 using var multipart = new MultipartFormDataContent();
@@ -95,9 +112,11 @@ public class ProductsController : Controller
                 BasePrice = model.BasePrice,
                 SalePrice = model.SalePrice,
                 Sku = model.Sku,
+                MetaTitle = model.MetaTitle,
+                MetaDescription = model.MetaDescription,
                 IsFeatured = model.IsFeatured,
                 IsActive = model.IsActive,
-                ThumbnailUrl = uploadedUrls.FirstOrDefault(),
+                ThumbnailUrl = thumbnailUrl ?? uploadedUrls.FirstOrDefault(),
                 Images = uploadedUrls.Any() ? uploadedUrls : new List<string>(),
                 Variants = model.Variants
             };
@@ -151,6 +170,9 @@ public class ProductsController : Controller
             BasePrice = product.BasePrice,
             SalePrice = product.SalePrice,
             Sku = product.Sku,
+            MetaTitle = product.MetaTitle,
+            MetaDescription = product.MetaDescription,
+            ThumbnailUrl = product.ThumbnailUrl,
             IsFeatured = product.IsFeatured,
             IsActive = product.IsActive
         };
@@ -163,7 +185,7 @@ public class ProductsController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> Edit(Guid id, CreateProductDto model)
+    public async Task<IActionResult> Edit(Guid id, CreateProductDto model, IFormFile? thumbnailFile)
     {
         if (!ModelState.IsValid)
         {
@@ -175,6 +197,19 @@ public class ProductsController : Controller
 
         try
         {
+            if (thumbnailFile != null)
+            {
+                using var thumbMultipart = new MultipartFormDataContent();
+                var streamContent = new StreamContent(thumbnailFile.OpenReadStream());
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(thumbnailFile.ContentType ?? "application/octet-stream");
+                thumbMultipart.Add(streamContent, "files", thumbnailFile.FileName);
+                thumbMultipart.Add(new StringContent(model.Name ?? ""), "prefix");
+
+                var uploads = await _productApi.UploadImagesViaClientAsync(thumbMultipart);
+                if (uploads != null)
+                    model.ThumbnailUrl = uploads.FirstOrDefault(u => !string.IsNullOrEmpty(u.OriginalUrl))?.OriginalUrl ?? model.ThumbnailUrl;
+            }
+
             var json = JsonSerializer.Serialize(model, _jsonOptions);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
             var response = await _httpClient.PutAsync($"/api/products/{id}", content);
@@ -271,6 +306,80 @@ public class ProductsController : Controller
         {
             return Ok(new List<object>());
         }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteImage(Guid imageId)
+    {
+        var response = await _httpClient.DeleteAsync($"/api/productimages/{imageId}");
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ReplaceImage(Guid id, IFormFile file)
+    {
+        if (file == null) return BadRequest("No file provided");
+        using var form = new MultipartFormDataContent();
+        var content = new StreamContent(file.OpenReadStream());
+        content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType ?? "application/octet-stream");
+        form.Add(content, "file", file.FileName);
+        var response = await _httpClient.PostAsync($"/api/productimages/{id}/replace", form);
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
+    }
+
+    public class ReorderDto { public Guid ProductId { get; set; } public List<Guid> OrderedIds { get; set; } = new(); }
+
+    [HttpPost]
+    public async Task<IActionResult> ReorderImages([FromBody] ReorderDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync("/api/productimages/reorder", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> SetThumbnail([FromBody] UpdateThumbnailRequest dto)
+    {
+        var response = await _httpClient.PutAsJsonAsync("/api/productimages/thumbnail", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
+    }
+
+    // --- Variant proxy endpoints for admin JS (call ProductAPI) ---
+    [HttpGet]
+    public async Task<IActionResult> GetVariants(Guid id)
+    {
+        var response = await _httpClient.GetAsync($"/api/productvariants/by-product/{id}");
+        if (!response.IsSuccessStatusCode) return StatusCode((int)response.StatusCode);
+
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SaveVariant([FromBody] CreateProductVariantDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync("/api/productvariants", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateVariant(Guid id, [FromBody] UpdateProductVariantDto dto)
+    {
+        var response = await _httpClient.PutAsJsonAsync($"/api/productvariants/{id}", dto);
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteVariant(Guid id)
+    {
+        var response = await _httpClient.DeleteAsync($"/api/productvariants/{id}");
+        var json = await response.Content.ReadAsStringAsync();
+        return Content(json, "application/json", Encoding.UTF8);
     }
 
     [HttpPost]

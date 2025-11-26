@@ -53,11 +53,12 @@ public class InventoryController : ControllerBase
     }
 
     [HttpGet("low-stock")]
-    public async Task<ActionResult<ApiResponse<List<InventoryDto>>>> GetLowStock([FromQuery] int threshold = 10)
+    public async Task<ActionResult<ApiResponse<List<InventoryDto>>>> GetLowStock([FromQuery] int? threshold = null)
     {
         try
         {
-            var inventory = await _inventoryService.GetLowStockAsync(threshold);
+            var th = threshold ?? await _inventoryService.GetLowStockThresholdAsync();
+            var inventory = await _inventoryService.GetLowStockAsync(th);
             return Ok(ApiResponse<List<InventoryDto>>.SuccessResponse(inventory));
         }
         catch (Exception ex)

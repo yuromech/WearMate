@@ -54,6 +54,17 @@ public abstract class BaseApiClient
         return JsonSerializer.Deserialize<T>(json, _json);
     }
 
+    protected async Task<T?> PutAsync<T>(string url, object body)
+    {
+        var response = await _http.PutAsJsonAsync(url, body);
+
+        if (!response.IsSuccessStatusCode)
+            return default;
+
+        var json = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<T>(json, _json);
+    }
+
     protected async Task<bool> DeleteAsync(string url)
     {
         var response = await _http.DeleteAsync(url);

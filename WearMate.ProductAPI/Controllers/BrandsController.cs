@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using WearMate.ProductAPI.Services;
 using WearMate.Shared.DTOs.Common;
 using WearMate.Shared.DTOs.Products;
@@ -22,11 +23,11 @@ public class BrandsController : ControllerBase
     /// GET /api/brands - Get all brands
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<List<BrandDto>>>> GetBrands()
+    public async Task<ActionResult<ApiResponse<List<BrandDto>>>> GetBrands([FromQuery] bool includeInactive = false, [FromQuery] string? search = null)
     {
         try
         {
-            var brands = await _brandService.GetAllBrandsAsync();
+            var brands = await _brandService.GetAllBrandsAsync(includeInactive, search);
             return Ok(ApiResponse<List<BrandDto>>.SuccessResponse(brands));
         }
         catch (Exception ex)
@@ -103,6 +104,14 @@ public class BrandsController : ControllerBase
             return CreatedAtAction(nameof(GetBrand), new { id = brand.Id },
                 ApiResponse<BrandDto>.SuccessResponse(brand, "Brand created successfully"));
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<BrandDto>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ApiResponse<BrandDto>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating brand");
@@ -130,6 +139,14 @@ public class BrandsController : ControllerBase
 
             return Ok(ApiResponse<BrandDto>.SuccessResponse(brand, "Brand updated successfully"));
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<BrandDto>.ErrorResponse(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ApiResponse<BrandDto>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating brand {BrandId}", id);
@@ -153,11 +170,85 @@ public class BrandsController : ControllerBase
 
             return Ok(ApiResponse<bool>.SuccessResponse(true, "Brand deleted successfully"));
         }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ApiResponse<bool>.ErrorResponse(ex.Message));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting brand {BrandId}", id);
             return StatusCode(500, ApiResponse<bool>.ErrorResponse(
                 "Error deleting brand", new List<string> { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// PATCH /api/brands/{id}/reactivate - Reactivate brand
+    /// </summary>
+    [HttpPatch("{id:guid}/reactivate")]
+    public async Task<ActionResult<ApiResponse<bool>>> ReactivateBrand(Guid id)
+    {
+        try
+        {
+            var result = await _brandService.ReactivateBrandAsync(id);
+            if (!result)
+                return NotFound(ApiResponse<bool>.ErrorResponse("Brand not found"));
+
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Brand reactivated successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reactivating brand {BrandId}", id);
+            return StatusCode(500, ApiResponse<bool>.ErrorResponse(
+                "Error reactivating brand", new List<string> { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// PATCH /api/brands/{id}/deactivate - Deactivate brand
+    /// </summary>
+    [HttpPatch("{id:guid}/deactivate")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeactivateBrand(Guid id)
+    {
+        try
+        {
+            var result = await _brandService.DeactivateBrandAsync(id);
+            if (!result)
+                return NotFound(ApiResponse<bool>.ErrorResponse("Brand not found"));
+
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Brand deactivated successfully"));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deactivating brand {BrandId}", id);
+            return StatusCode(500, ApiResponse<bool>.ErrorResponse(
+                "Error deactivating brand", new List<string> { ex.Message }));
+        }
+    }
+
+    /// <summary>
+    /// POST /api/brands/upload-logo - upload logo and return URL
+    /// </summary>
+    [HttpPost("upload-logo")]
+    public async Task<ActionResult<ApiResponse<string>>> UploadLogo([FromForm] IFormFile file, [FromForm] string? currentLogoUrl = null)
+    {
+        try
+        {
+            if (file == null)
+                return BadRequest(ApiResponse<string>.ErrorResponse("No file uploaded"));
+
+            var url = await _brandService.UploadLogoAsync(file, currentLogoUrl);
+            return Ok(ApiResponse<string>.SuccessResponse(url ?? string.Empty, "Uploaded brand logo successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error uploading brand logo");
+            return StatusCode(500, ApiResponse<string>.ErrorResponse(
+                "Error uploading logo", new List<string> { ex.Message }));
         }
     }
 }

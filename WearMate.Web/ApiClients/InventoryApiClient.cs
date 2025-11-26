@@ -128,7 +128,11 @@ public class InventoryApiClient : BaseApiClient
     public async Task<WarehouseDto?> UpdateWarehouseAsync(Guid id, CreateWarehouseDto dto)
     {
         var url = $"/api/warehouses/{id}";
-        return await PatchAsync<WarehouseDto>(url, dto);
+        var response = await _http.PutAsJsonAsync(url, dto);
+        if (!response.IsSuccessStatusCode) return null;
+        var json = await response.Content.ReadAsStringAsync();
+        var api = System.Text.Json.JsonSerializer.Deserialize<ApiResponse<WarehouseDto>>(json, _json);
+        return api?.Data;
     }
 
     /// <summary>

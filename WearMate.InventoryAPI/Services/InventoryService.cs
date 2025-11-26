@@ -6,10 +6,12 @@ namespace WearMate.InventoryAPI.Services;
 public class InventoryService
 {
     private readonly SupabaseClient _supabase;
+    private readonly WarehouseService _warehouseService;
 
-    public InventoryService(SupabaseClient supabase)
+    public InventoryService(SupabaseClient supabase, WarehouseService warehouseService)
     {
         _supabase = supabase;
+        _warehouseService = warehouseService;
     }
 
     public async Task<List<InventoryDto>> GetInventoryByProductAsync(Guid productVariantId)
@@ -29,13 +31,36 @@ public class InventoryService
 
     public async Task<List<InventoryDto>> GetLowStockAsync(int threshold = 10)
     {
+        // Fetch by threshold on quantity, then also check available (quantity - reserved)
         var query = _supabase.From("inventory")
-            .Lt("quantity", threshold);
-        return await _supabase.GetAsync<InventoryDto>(query.Build());
+            .Lt("quantity", threshold + 1); // include equal threshold
+        var rows = await _supabase.GetAsync<InventoryDto>(query.Build());
+        return rows
+            .Where(x => (x.Quantity - x.ReservedQuantity) < threshold)
+            .ToList();
+    }
+
+    public async Task<int> GetLowStockThresholdAsync(int fallback = 10)
+    {
+        try
+        {
+            var query = _supabase.From("settings")
+                .Eq("key", "LOW_STOCK_THRESHOLD")
+                .Limit(1);
+            var settings = await _supabase.GetAsync<SettingDto>(query.Build());
+            var setting = settings.FirstOrDefault();
+            if (setting != null && int.TryParse(setting.Value, out var parsed) && parsed > 0)
+                return parsed;
+        }
+        catch
+        {
+        }
+        return fallback;
     }
 
     public async Task<InventoryDto?> StockInAsync(StockInDto dto)
     {
+        await EnsureWarehouseActive(dto.WarehouseId);
         var existing = await GetInventoryByWarehouseAsync(dto.WarehouseId, dto.ProductVariantId);
 
         if (existing != null)
@@ -74,6 +99,7 @@ public class InventoryService
 
     public async Task<InventoryDto?> StockOutAsync(StockOutDto dto)
     {
+        await EnsureWarehouseActive(dto.WarehouseId);
         var existing = await GetInventoryByWarehouseAsync(dto.WarehouseId, dto.ProductVariantId);
 
         if (existing == null || existing.AvailableQuantity < dto.Quantity)
@@ -95,6 +121,8 @@ public class InventoryService
 
     public async Task<bool> TransferStockAsync(StockTransferDto dto)
     {
+        await EnsureWarehouseActive(dto.FromWarehouseId);
+        await EnsureWarehouseActive(dto.ToWarehouseId);
         var fromInventory = await GetInventoryByWarehouseAsync(dto.FromWarehouseId, dto.ProductVariantId);
         if (fromInventory == null || fromInventory.AvailableQuantity < dto.Quantity)
             throw new Exception("Insufficient stock for transfer");
@@ -126,6 +154,7 @@ public class InventoryService
 
     public async Task<InventoryDto?> AdjustStockAsync(StockAdjustmentDto dto)
     {
+        await EnsureWarehouseActive(dto.WarehouseId);
         var existing = await GetInventoryByWarehouseAsync(dto.WarehouseId, dto.ProductVariantId);
 
         if (existing != null)
@@ -189,5 +218,12 @@ public class InventoryService
         };
 
         await _supabase.PostAsync<InventoryLogDto>("inventory_logs", logData);
+    }
+
+    private async Task EnsureWarehouseActive(Guid warehouseId)
+    {
+        var warehouse = await _warehouseService.GetWarehouseByIdAsync(warehouseId);
+        if (warehouse == null || !warehouse.IsActive)
+            throw new Exception("Warehouse is inactive or not found");
     }
 }
