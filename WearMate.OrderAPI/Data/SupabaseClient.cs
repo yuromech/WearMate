@@ -89,6 +89,16 @@ public class SupabaseClient
         return true;
     }
 
+    public async Task<bool> DeleteWhereAsync(string table, string filterQuery)
+    {
+        var url = $"{_supabaseUrl}/rest/v1/{table}?{filterQuery}";
+        var request = new HttpRequestMessage(HttpMethod.Delete, url);
+        request.Headers.Add("Prefer", "return=minimal");
+        var response = await _httpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        return true;
+    }
+
     public async Task<int> GetCountAsync(string url)
     {
         var request = new HttpRequestMessage(HttpMethod.Head, url);

@@ -1,7 +1,8 @@
-﻿using WearMate.OrderAPI.Data;
+using WearMate.OrderAPI.Data;
 using WearMate.Shared.DTOs.Common;
 using WearMate.Shared.DTOs.Orders;
 using WearMate.Shared.Helpers;
+using WearMate.Shared.DTOs.Products;
 
 namespace WearMate.OrderAPI.Services;
 
@@ -90,16 +91,13 @@ public class OrderService
 
         foreach (var item in dto.Items)
         {
-            var variantResponse = await _productApi.GetAsync(
-                $"/api/products/variant/{item.ProductVariantId}");
+            var variant = await GetVariantAsync(item.ProductVariantId)
+                          ?? throw new Exception("Product variant not found");
+            var product = await GetProductAsync(variant.ProductId)
+                          ?? throw new Exception("Product not found");
 
-            if (!variantResponse.IsSuccessStatusCode)
-                throw new Exception("Product variant not found");
-
-            var variantJson = await variantResponse.Content.ReadAsStringAsync();
-            var variant = System.Text.Json.JsonSerializer.Deserialize<dynamic>(variantJson);
-
-            subtotal += item.Quantity * (decimal)variant.price;
+            var price = (product.SalePrice ?? product.BasePrice) + variant.PriceAdjustment;
+            subtotal += item.Quantity * price;
         }
 
         var shippingFee = subtotal >= 500000 ? 0 : 30000;
@@ -133,14 +131,23 @@ public class OrderService
         {
             foreach (var item in dto.Items)
             {
+                var variant = await GetVariantAsync(item.ProductVariantId)
+                              ?? throw new Exception("Product variant not found");
+                var product = await GetProductAsync(variant.ProductId)
+                              ?? throw new Exception("Product not found");
+                var price = (product.SalePrice ?? product.BasePrice) + variant.PriceAdjustment;
+                var variantInfo = $"{variant.Color} {variant.Size}".Trim();
+
                 var itemData = new
                 {
                     order_id = order.Id,
                     product_variant_id = item.ProductVariantId,
-                    product_name = "Product",
+                    product_name = product.Name,
+                    variant_info = variantInfo,
+                    sku = variant.Sku,
                     quantity = item.Quantity,
-                    unit_price = 0m,
-                    total_price = 0m,
+                    unit_price = price,
+                    total_price = price * item.Quantity,
                     created_at = DateTime.UtcNow
                 };
                 await _supabase.PostAsync<OrderItemDto>("order_items", itemData);
@@ -213,5 +220,17 @@ public class OrderService
     private string GenerateOrderNumber()
     {
         return $"ORD{DateTime.UtcNow:yyyyMMddHHmmss}{Random.Shared.Next(1000, 9999)}";
+    }
+
+    private async Task<ProductVariantDto?> GetVariantAsync(Guid variantId)
+    {
+        var query = _supabase.From("product_variants").Eq("id", variantId).Limit(1);
+        return await _supabase.GetSingleAsync<ProductVariantDto>(query.Build());
+    }
+
+    private async Task<ProductDto?> GetProductAsync(Guid productId)
+    {
+        var query = _supabase.From("products").Eq("id", productId).Limit(1);
+        return await _supabase.GetSingleAsync<ProductDto>(query.Build());
     }
 }

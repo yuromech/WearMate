@@ -22,15 +22,13 @@ public class CartItemDto
     public decimal TotalPrice => Quantity * Price;
     public DateTime CreatedAt { get; set; }
 
-    // Product info (for display)
     public string ProductName { get; set; } = string.Empty;
     public string? ProductImage { get; set; }
-    public string? VariantInfo { get; set; } // e.g., "Size: L, Color: Red"
+    public string? VariantInfo { get; set; }
     public string? Sku { get; set; }
     public int StockAvailable { get; set; }
 }
 
-// Operation DTOs
 public class AddToCartDto
 {
     public Guid? UserId { get; set; }
@@ -48,4 +46,37 @@ public class UpdateCartItemDto
 public class RemoveFromCartDto
 {
     public Guid CartItemId { get; set; }
+}
+
+public class AddToCartRequestDto
+{
+    public Guid? UserId { get; set; }
+    public Guid ProductId { get; set; }
+    public Guid VariantId { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal FinalPrice { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
+    public string? Size { get; set; }
+    public string? Color { get; set; }
+}
+
+public class MergeCartRequestDto
+{
+    public Guid? UserId { get; set; }
+    public List<SessionCartItemDto> SessionItems { get; set; } = new();
+}
+
+public class SessionCartItemDto
+{
+    public Guid ProductId { get; set; }
+    public Guid VariantId { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    public decimal FinalPrice { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
+    public string? Size { get; set; }
+    public string? Color { get; set; }
 }

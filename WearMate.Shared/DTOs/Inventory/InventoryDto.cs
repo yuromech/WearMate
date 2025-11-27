@@ -30,7 +30,6 @@ public class InventoryDto
     public int AvailableQuantity => Quantity - ReservedQuantity;
     public DateTime UpdatedAt { get; set; }
 
-    // Navigation
     public WarehouseDto? Warehouse { get; set; }
 }
 
@@ -39,7 +38,7 @@ public class InventoryLogDto
     public Guid Id { get; set; }
     public Guid WarehouseId { get; set; }
     public Guid ProductVariantId { get; set; }
-    public string Type { get; set; } = string.Empty; // in, out, transfer, adjustment
+    public string Type { get; set; } = string.Empty;
     public int Quantity { get; set; }
     public int BeforeQuantity { get; set; }
     public int AfterQuantity { get; set; }
@@ -48,11 +47,6 @@ public class InventoryLogDto
     public DateTime CreatedAt { get; set; }
 }
 
-// ===== OPERATION DTOs =====
-
-/// <summary>
-/// Base class for stock operations
-/// </summary>
 public class StockOperationDto
 {
     public Guid WarehouseId { get; set; }
@@ -81,7 +75,34 @@ public class InventoryAdjustDto
     public Guid? CreatedBy { get; set; }
 }
 
-// Add legacy DTO class names expected by InventoryAPI controllers
 public class StockInDto : StockOperationDto { }
 public class StockOutDto : StockOperationDto { }
 public class StockAdjustmentDto : InventoryAdjustDto { }
+
+public class CheckoutInventoryDto
+{
+    public List<CheckoutItemDto> Items { get; set; } = new();
+    public Guid? OrderId { get; set; }
+}
+
+public class CheckoutItemDto
+{
+    public Guid VariantId { get; set; }
+    public int Quantity { get; set; }
+}
+
+public class CheckoutResultDto
+{
+    public bool Success { get; set; }
+    public string? Message { get; set; }
+    public List<CheckoutItemResultDto> ItemResults { get; set; } = new();
+}
+
+public class CheckoutItemResultDto
+{
+    public Guid VariantId { get; set; }
+    public bool Success { get; set; }
+    public int RequestedQuantity { get; set; }
+    public int AvailableQuantity { get; set; }
+    public string? Message { get; set; }
+}

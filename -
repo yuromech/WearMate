@@ -1,0 +1,215 @@
+using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
+using WearMate.Shared.DTOs.Products;
+using WearMate.Shared.DTOs.Orders;
+using WearMate.Web.ApiClients;
+using WearMate.Web.Models.ViewModels;
+
+namespace WearMate.Web.Controllers;
+
+public class CartController : Controller
+{
+    private const string CartSessionKey = "ShoppingCart";
+    private readonly ProductApiClient _productApi;
+    private readonly InventoryApiClient _inventoryApi;
+    private readonly OrderApiClient _orderApi;
+    private readonly ILogger<CartController> _logger;
+
+    public CartController(ProductApiClient productApi, InventoryApiClient inventoryApi, OrderApiClient orderApi, ILogger<CartController> logger)
+    {
+        _productApi = productApi;
+        _inventoryApi = inventoryApi;
+        _orderApi = orderApi;
+        _logger = logger;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var cartItems = GetCartFromSession();
+
+        var userId = GetCurrentUserId();
+        if (!cartItems.Any() && userId != Guid.Empty)
+        {
+            var dbCart = await _orderApi.GetCartAsync(userId);
+            if (dbCart?.Items != null && dbCart.Items.Any())
+            {
+                cartItems = dbCart.Items.Select(ToViewModel).ToList();
+                SaveCartToSession(cartItems);
+            }
+        }
+
+        return View(cartItems);
+    }
+
+    // Support culture-prefixed routes (e.g., /en/Cart/Add)
+    [HttpPost("/Cart/Add")]
+    [HttpPost("/{culture}/Cart/Add")]
+    public async Task<IActionResult> Add([FromBody] AddToCartRequest request)
+    {
+        if (request == null || request.ProductId == Guid.Empty || request.VariantId == Guid.Empty || request.Quantity <= 0)
+            return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ." });
+
+        try
+        {
+            var product = await _productApi.GetProductByIdAsync(request.ProductId);
+            if (product == null || !product.IsActive)
+                return BadRequest(new { success = false, message = "Sản phẩm không còn hiển thị." });
+
+            var variants = (product.Variants != null && product.Variants.Any())
+                ? product.Variants
+                : await _productApi.GetVariantsAsync(product.Id) ?? new List<ProductVariantDto>();
+
+            var variant = variants.FirstOrDefault(v => v.Id == request.VariantId);
+            if (variant == null || !variant.IsActive || variant.ProductId != product.Id)
+                return BadRequest(new { success = false, message = "Biến thể không hợp lệ." });
+
+            // Inventory check: sum available across all warehouses (only enforce when data is present)
+            var inventories = await _inventoryApi.GetInventoryByProductAsync(variant.Id);
+            int? available = null;
+            if (inventories != null && inventories.Any())
+            {
+                available = inventories.Sum(i => i.AvailableQuantity);
+            }
+            else if (variant.StockQuantity > 0)
+            {
+                available = variant.StockQuantity;
+            }
+
+            var cartItems = GetCartFromSession();
+            var existing = cartItems.FirstOrDefault(x => x.ProductVariantId == variant.Id);
+            var desiredQty = request.Quantity + (existing?.Quantity ?? 0);
+            if (available.HasValue && desiredQty > available.Value)
+                return BadRequest(new { success = false, message = "Sản phẩm không đủ tồn kho." });
+
+            var priceSnapshot = (product.SalePrice ?? product.BasePrice) + variant.PriceAdjustment;
+            var variantInfo = $"{variant.Color} {variant.Size}".Trim();
+
+            if (existing != null)
+            {
+                existing.Quantity = desiredQty;
+                existing.Price = priceSnapshot;
+                existing.VariantInfo = variantInfo;
+                existing.ProductName = product.Name;
+                existing.ProductId = product.Id;
+                existing.ProductImage ??= product.ThumbnailUrl ?? product.Images.FirstOrDefault()?.ImageUrl;
+            }
+            else
+            {
+                cartItems.Add(new CartItemViewModel
+                {
+                    ProductId = product.Id,
+                    ProductVariantId = variant.Id,
+                    ProductName = product.Name,
+                    VariantInfo = variantInfo,
+                    Price = priceSnapshot,
+                    Quantity = request.Quantity,
+                    ProductImage = product.ThumbnailUrl ?? product.Images.FirstOrDefault()?.ImageUrl
+                });
+            }
+
+            SaveCartToSession(cartItems);
+
+            return Ok(new
+            {
+                success = true,
+                message = "Đã thêm vào giỏ hàng",
+                cartCount = cartItems.Sum(x => x.Quantity)
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding to cart");
+            return StatusCode(500, new { success = false, message = "Không thể thêm vào giỏ hàng." });
+        }
+    }
+
+    [HttpPost]
+    public IActionResult UpdateQuantity(Guid productVariantId, int quantity)
+    {
+        var cartItems = GetCartFromSession();
+        var item = cartItems.FirstOrDefault(x => x.ProductVariantId == productVariantId);
+
+        if (item != null)
+        {
+            if (quantity <= 0)
+                cartItems.Remove(item);
+            else
+                item.Quantity = quantity;
+        }
+
+        SaveCartToSession(cartItems);
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public IActionResult RemoveItem(Guid productVariantId)
+    {
+        var cartItems = GetCartFromSession();
+        var item = cartItems.FirstOrDefault(x => x.ProductVariantId == productVariantId);
+
+        if (item != null)
+            cartItems.Remove(item);
+
+        SaveCartToSession(cartItems);
+        return RedirectToAction(nameof(Index));
+    }
+
+    public IActionResult Clear()
+    {
+        HttpContext.Session.Remove(CartSessionKey);
+        return RedirectToAction(nameof(Index));
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var sessionJson = HttpContext.Session.GetString("UserSession");
+        if (string.IsNullOrEmpty(sessionJson)) return Guid.Empty;
+
+        try
+        {
+            var sessionData = JsonSerializer.Deserialize<JsonElement>(sessionJson);
+            var userIdStr = sessionData.GetProperty("User").GetProperty("Id").GetString();
+            return Guid.Parse(userIdStr ?? Guid.Empty.ToString());
+        }
+        catch
+        {
+            return Guid.Empty;
+        }
+    }
+
+    private List<CartItemViewModel> GetCartFromSession()
+    {
+        var json = HttpContext.Session.GetString(CartSessionKey);
+        if (string.IsNullOrEmpty(json))
+            return new List<CartItemViewModel>();
+
+        return JsonSerializer.Deserialize<List<CartItemViewModel>>(json) ?? new();
+    }
+
+    private void SaveCartToSession(List<CartItemViewModel> cartItems)
+    {
+        var json = JsonSerializer.Serialize(cartItems);
+        HttpContext.Session.SetString(CartSessionKey, json);
+    }
+
+    private CartItemViewModel ToViewModel(CartItemDto dto)
+    {
+        return new CartItemViewModel
+        {
+            ProductVariantId = dto.ProductVariantId,
+            ProductName = dto.ProductName ?? "Sản phẩm",
+            VariantInfo = dto.VariantInfo,
+            ProductImage = dto.ProductImage,
+            Quantity = dto.Quantity,
+            Price = dto.Price
+        };
+    }
+}
+
+public class AddToCartRequest
+{
+    public Guid ProductId { get; set; }
+    public Guid VariantId { get; set; }
+    public int Quantity { get; set; }
+}
+
