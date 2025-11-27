@@ -33,7 +33,13 @@ public class ProductsController : Controller
         if (status?.ToLower() == "active") isActive = true;
         else if (status?.ToLower() == "inactive") isActive = false;
 
-        var products = await _productApi.GetProductsAsync(page, pageSize, categoryId, search, isActive: isActive);
+        var products = await _productApi.GetProductsAsync(
+            page, 
+            pageSize, 
+            categoryId: categoryId, 
+            brandId: brandId, 
+            search: search, 
+            isActive: isActive);
         ViewBag.Categories = await _productApi.GetCategoriesAsync() ?? new List<CategoryDto>();
         ViewBag.Brands = await _productApi.GetBrandsAsync() ?? new List<BrandDto>();
         ViewBag.SearchQuery = search;
@@ -260,7 +266,12 @@ public class ProductsController : Controller
     [HttpGet]
     public async Task<IActionResult> Export(int page = 1, int pageSize = 1000, Guid? categoryId = null, Guid? brandId = null, string? search = null)
     {
-        var products = await _productApi.GetProductsAsync(1, pageSize, categoryId, search);
+        var products = await _productApi.GetProductsAsync(
+            1, 
+            pageSize, 
+            categoryId: categoryId, 
+            brandId: brandId, 
+            search: search);
         var list = products?.Items ?? new List<ProductDto>();
 
         var sb = new StringBuilder();

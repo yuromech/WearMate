@@ -18,6 +18,7 @@ public class ProductApiClient : BaseApiClient
         int page = 1,
         int pageSize = 20,
         Guid? categoryId = null,
+        Guid? brandId = null,
         string? search = null,
         bool? isActive = true)
     {
@@ -26,6 +27,7 @@ public class ProductApiClient : BaseApiClient
             { "page", page },
             { "pageSize", pageSize },
             { "categoryId", categoryId },
+            { "brandId", brandId },
             { "search", search },
             { "isActive", isActive }
         });

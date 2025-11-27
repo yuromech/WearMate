@@ -1,4 +1,4 @@
-﻿@model List<WearMate.Web.Models.ViewModels.CartItemViewModel>
+@model List<WearMate.Web.Models.ViewModels.CartItemViewModel>
 @{
     ViewData["Title"] = "Giỏ hàng";
 }
@@ -17,7 +17,10 @@
                             <table class="table table-hover align-middle mb-0">
                                 <thead class="bg-light">
                                     <tr>
-                                        <th class="py-3 ps-4 border-0">Sản phẩm</th>
+                                        <th class="py-3 border-0 ps-4" style="width:40px;">
+                                            <input type="checkbox" id="selectAll" class="form-check-input" />
+                                        </th>
+                                        <th class="py-3 border-0">Sản phẩm</th>
                                         <th class="py-3 border-0">Giá</th>
                                         <th class="py-3 border-0">Số lượng</th>
                                         <th class="py-3 border-0">Tổng</th>
@@ -29,13 +32,23 @@
                                     {
                                         <tr>
                                             <td class="ps-4 py-3">
+                                                <input type="checkbox" name="selectedVariantIds" value="@item.ProductVariantId" class="form-check-input item-checkbox" checked />
+                                            </td>
+                                            <td class="ps-4 py-3">
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                                        <i class="bi bi-bag text-muted fs-4"></i>
+                                                    <div class="bg-light rounded-3 d-flex align-items-center justify-content-center overflow-hidden" style="width: 60px; height: 60px;">
+                                                        @if (!string.IsNullOrWhiteSpace(item.ProductImage))
+                                                        {
+                                                            <img src="@item.ProductImage" alt="@item.ProductName" class="w-100 h-100 object-fit-cover" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="bi bi-bag text-muted fs-4"></i>
+                                                        }
                                                     </div>
                                                     <div>
                                                         <h6 class="mb-0 fw-semibold">@item.ProductName</h6>
-                                                        <small class="text-muted">Biến thể: @item.ProductVariantId</small>
+                                                        <small class="text-muted">Biến thể: @(item.VariantInfo ?? item.ProductVariantId.ToString())</small>
                                                     </div>
                                                 </div>
                                             </td>
@@ -89,9 +102,9 @@
                             <span class="h4 fw-bold text-primary">@Model.Sum(x => x.TotalPrice).ToString("N0") đ</span>
                         </div>
 
-                        <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm">
-                            Thanh toán ngay
-                        </a>
+                        <button type="button" id="checkoutSelected" class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm">
+                            Thanh toán sản phẩm đã chọn
+                        </button>
                         
                         <div class="mt-4 text-center">
                             <small class="text-muted d-block mb-2">Chúng tôi chấp nhận</small>
@@ -120,3 +133,29 @@
         </div>
     }
 </div>
+
+<script>
+    const selectAll = document.getElementById('selectAll');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const checkoutBtn = document.getElementById('checkoutSelected');
+    if (selectAll) {
+        selectAll.addEventListener('change', () => {
+            itemCheckboxes.forEach(cb => cb.checked = selectAll.checked);
+        });
+    }
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', () => {
+            const selected = Array.from(itemCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            if (!selected.length) {
+                alert('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.');
+                return;
+            }
+            const params = selected.map(id => `selectedVariantIds=${encodeURIComponent(id)}`).join('&');
+            const url = '@Url.Action("Index", "Checkout")' + '?' + params;
+            window.location.href = url;
+        });
+    }
+</script>
+

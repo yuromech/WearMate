@@ -2,18 +2,24 @@
 using System.Text.Json;
 using WearMate.Shared.DTOs.Auth;
 using WearMate.Web.Services;
+using WearMate.Web.ApiClients;
+using WearMate.Web.Models.ViewModels;
+using WearMate.Shared.DTOs.Orders;
 
 namespace WearMate.Web.Controllers;
 
 public class AccountController : Controller
 {
     private readonly AuthService _authService;
+    private readonly OrderApiClient _orderApi;
     private readonly ILogger<AccountController> _logger;
     private const string SessionKey = "UserSession";
+    private const string CartSessionKey = "ShoppingCart";
 
-    public AccountController(AuthService authService, ILogger<AccountController> logger)
+    public AccountController(AuthService authService, OrderApiClient orderApi, ILogger<AccountController> logger)
     {
         _authService = authService;
+        _orderApi = orderApi;
         _logger = logger;
     }
 
@@ -31,7 +37,10 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(LoginDto model, string? returnUrl = null)
     {
         if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "Vui lòng điền đầy đủ thông tin đăng nhập.";
             return View(model);
+        }
 
         try
         {
@@ -39,7 +48,8 @@ public class AccountController : Controller
 
             if (result == null)
             {
-                ModelState.AddModelError("", "Invalid email or password");
+                TempData["Error"] = "Email hoặc mật khẩu không đúng. Vui lòng thử lại.";
+                ModelState.AddModelError("", "Email hoặc mật khẩu không đúng");
                 return View(model);
             }
 
@@ -62,12 +72,13 @@ public class AccountController : Controller
         {
             if (ex.Message == "EmailNotVerified")
             {
-                TempData["Error"] = "Your email is not verified. Please check your inbox.";
+                TempData["Error"] = "Email của bạn chưa được xác thực. Vui lòng kiểm tra hộp thư của bạn.";
                 return RedirectToAction(nameof(Login));
             }
 
             _logger.LogError(ex, "Login error");
-            ModelState.AddModelError("", "An error occurred during login.");
+            TempData["Error"] = "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại sau.";
+            ModelState.AddModelError("", "Đã xảy ra lỗi trong quá trình đăng nhập.");
             return View(model);
         }
 
@@ -210,5 +221,48 @@ public class AccountController : Controller
         {
             return RedirectToAction(nameof(Login));
         }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Orders(int page = 1, int pageSize = 10)
+    {
+        var userId = GetCurrentUserId();
+        if (userId == Guid.Empty) return RedirectToAction(nameof(Login));
+
+        var orders = await _orderApi.GetUserOrdersAsync(userId, page, pageSize)
+            ?? new Shared.DTOs.Common.PaginatedResult<Shared.DTOs.Orders.OrderDto>
+            {
+                Items = new List<Shared.DTOs.Orders.OrderDto>(),
+                Page = page,
+                PageSize = pageSize
+            };
+
+        return View(orders);
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        var sessionJson = HttpContext.Session.GetString(SessionKey);
+        if (string.IsNullOrEmpty(sessionJson)) return Guid.Empty;
+
+        try
+        {
+            var sessionData = JsonSerializer.Deserialize<JsonElement>(sessionJson);
+            var userIdStr = sessionData.GetProperty("User").GetProperty("Id").GetString();
+            return Guid.Parse(userIdStr ?? Guid.Empty.ToString());
+        }
+        catch
+        {
+            return Guid.Empty;
+        }
+    }
+
+    private List<CartItemViewModel> GetCartFromSession()
+    {
+        var json = HttpContext.Session.GetString(CartSessionKey);
+        if (string.IsNullOrEmpty(json))
+            return new List<CartItemViewModel>();
+
+        return JsonSerializer.Deserialize<List<CartItemViewModel>>(json) ?? new();
     }
 }

@@ -1,8 +1,11 @@
 ﻿@model WearMate.Shared.DTOs.Inventory.StockOutDto
+@using System.Text.Json
 @{
     ViewData["Title"] = "Stock Out";
     var warehouses = ViewBag.Warehouses as List<WearMate.Shared.DTOs.Inventory.WarehouseDto> ?? new();
-    var productsResult = ViewBag.Products as WearMate.Shared.DTOs.Common.PaginatedResult<WearMate.Shared.DTOs.Products.ProductDto>;
+    var products = ViewBag.Products as List<WearMate.Shared.DTOs.Products.ProductDto> ?? new();
+    var selectedVariantId = Model?.ProductVariantId ?? Guid.Empty;
+    var selectedProductId = products.FirstOrDefault(p => p.Variants?.Any(v => v.Id == selectedVariantId) == true)?.Id ?? Guid.Empty;
 }
 
 <h2><i class="bi bi-dash-circle"></i> Stock Out</h2>
@@ -26,24 +29,20 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="ProductVariantId" class="form-label">Product Variant *</label>
-                <select asp-for="ProductVariantId" class="form-select" required>
-                    <option value="">-- Select Product Variant --</option>
-                    @if (productsResult?.Items != null)
+                <label class="form-label">Product *</label>
+                <select id="productSelect" class="form-select">
+                    <option value="">-- Select Product --</option>
+                    @foreach (var product in products)
                     {
-                        @foreach (var product in productsResult.Items)
-                        {
-                            @if (product.Variants.Any())
-                            {
-                                @foreach (var variant in product.Variants)
-                                {
-                                    <option value="@variant.Id">
-                                        @product.Name - @variant.Size @variant.Color (@variant.Sku)
-                                    </option>
-                                }
-                            }
-                        }
+                        <option value="@product.Id">@product.Name</option>
                     }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="ProductVariantId" class="form-label">Product Variant *</label>
+                <select asp-for="ProductVariantId" class="form-select" id="variantSelect" required>
+                    <option value="">-- Select Product Variant --</option>
                 </select>
             </div>
 
@@ -69,4 +68,42 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const products = @Html.Raw(JsonSerializer.Serialize(products));
+            const productSelect = document.getElementById('productSelect');
+            const variantSelect = document.getElementById('variantSelect');
+            const initialProductId = "@selectedProductId";
+            const initialVariantId = "@selectedVariantId";
+
+            function renderVariants(productId, preselectVariantId = "") {
+                variantSelect.innerHTML = '<option value=\"\">-- Select Product Variant --</option>';
+                if (!productId) return;
+                const product = products.find(p => (p.id || p.Id) === productId);
+                const variants = product?.variants || product?.Variants;
+                if (!product || !variants) return;
+
+                variants.forEach(v => {
+                    const name = product.name || product.Name || '';
+                    const size = v.size ?? v.Size ?? '';
+                    const color = v.color ?? v.Color ?? '';
+                    const sku = v.sku ?? v.Sku ?? '';
+                    const label = `${name} - ${size} ${color} (${sku})`.trim();
+                    const opt = document.createElement('option');
+                    opt.value = v.id || v.Id;
+                    opt.textContent = label;
+                    if (preselectVariantId && (v.id === preselectVariantId || v.Id === preselectVariantId)) {
+                        opt.selected = true;
+                    }
+                    variantSelect.appendChild(opt);
+                });
+            }
+
+            productSelect?.addEventListener('change', (e) => renderVariants(e.target.value));
+            if (initialProductId) {
+                productSelect.value = initialProductId;
+                renderVariants(initialProductId, initialVariantId);
+            }
+        })();
+    </script>
 }

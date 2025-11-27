@@ -14,82 +14,120 @@
 
 <div class="container py-5" x-data="productDetail()" x-init="init()">
 
-    <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb bg-transparent p-0 m-0 small text-uppercase tracking-wide">
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">@Localizer["Home"]</a></li>
             @if (product.Category != null)
             {
-                <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index" asp-route-categoryId="@product.Category.Id" class="text-decoration-none text-muted">@product.Category.Name</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Products" asp-action="Index" asp-route-categorySlug="@product.Category.Slug" class="text-decoration-none text-muted">@product.Category.Name</a></li>
             }
             <li class="breadcrumb-item active fw-bold text-dark" aria-current="page">@product.Name</li>
         </ol>
     </nav>
 
     <div class="row g-5">
-        <!-- Left: Gallery -->
         <div class="col-lg-7">
-            <div class="position-relative mb-3 rounded-4 overflow-hidden bg-white shadow-sm" style="aspect-ratio: 4/5;">
-                <img :src="selectedImage" class="w-100 h-100 object-fit-contain" />
+            <div class="position-relative mb-3 rounded-4 overflow-hidden bg-white shadow-lg" style="aspect-ratio: 4/5;">
+                <img :src="selectedImage" class="w-100 h-100 object-fit-contain p-3" alt="@product.Name" />
                 
                 @if (product.SalePrice.HasValue)
                 {
-                    <span class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill px-3 py-2">-@((int)((1 - product.SalePrice / product.BasePrice) * 100))%</span>
+                    <span class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill px-3 py-2 shadow">
+                        <i class="bi bi-tag-fill me-1"></i>-@((int)((1 - product.SalePrice / product.BasePrice) * 100))%
+                    </span>
+                }
+                
+                @if (!product.IsActive)
+                {
+                    <span class="position-absolute top-0 end-0 m-3 badge bg-secondary rounded-pill px-3 py-2 shadow">
+                        <i class="bi bi-eye-slash me-1"></i>Tạm ngưng
+                    </span>
                 }
             </div>
 
             <div class="d-flex gap-2 overflow-auto pb-2" style="scrollbar-width: thin;">
-                <template x-for="img in images">
-                    <div class="rounded-3 overflow-hidden border border-2" 
-                         :class="{ 'border-primary': img === selectedImage, 'border-transparent': img !== selectedImage }" 
-                         style="width: 80px; height: 80px; cursor: pointer; flex-shrink: 0;"
-                         @@click="selectedImage = img">
-                        <img :src="img" class="w-100 h-100 object-fit-cover" />
+                <template x-for="(img, index) in images" :key="index">
+                    <div class="rounded-3 overflow-hidden border border-3 shadow-sm" 
+                         :class="{ 'border-primary shadow': img === selectedImage, 'border-light': img !== selectedImage }" 
+                         style="width: 90px; height: 90px; cursor: pointer; flex-shrink: 0; transition: all 0.2s;"
+                         @@click="selectedImage = img"
+                         @@mouseenter="$el.style.transform = 'scale(1.05)'"
+                         @@mouseleave="$el.style.transform = 'scale(1)'">
+                        <img :src="img" class="w-100 h-100 object-fit-cover" :alt="'@product.Name ' + (index + 1)" />
                     </div>
                 </template>
             </div>
         </div>
 
-        <!-- Right: Product Info -->
         <div class="col-lg-5">
             <div class="ps-lg-4">
-                <div class="mb-2 text-uppercase text-accent fw-bold small tracking-wider" style="color: var(--accent);">
-                    @product.Category?.Name
+                <div class="mb-3">
+                    @if (product.Brand != null)
+                    {
+                        <span class="badge bg-light text-dark border px-3 py-2 me-2">
+                            <i class="bi bi-award me-1"></i>@product.Brand.Name
+                        </span>
+                    }
+                    @if (product.Category != null)
+                    {
+                        <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.5rem 1rem;">
+                            @product.Category.Name
+                        </span>
+                    }
                 </div>
-                <h1 class="display-5 fw-bold mb-3" style="font-family: var(--font-heading);">@product.Name</h1>
+                
+                <h1 class="display-5 fw-bold mb-3" style="font-family: var(--font-heading); line-height: 1.2;">@product.Name</h1>
 
-                <div class="d-flex align-items-end gap-3 mb-4">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="d-flex gap-1">
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <i class="bi bi-star-fill text-warning"></i>
+                        }
+                    </div>
+                    <span class="text-muted">(0 đánh giá)</span>
+                    <span class="text-muted">|</span>
+                    <span class="text-success fw-medium"><i class="bi bi-check-circle-fill me-1"></i>Còn hàng</span>
+                </div>
+
+                <div class="d-flex align-items-end gap-3 mb-4 p-4 bg-light rounded-4">
                     @if (product.SalePrice.HasValue)
                     {
-                        <div class="display-6 fw-bold text-danger">@product.SalePrice.Value.ToString("N0")đ</div>
+                        <div class="display-4 fw-bold text-danger">@product.SalePrice.Value.ToString("N0")đ</div>
                         <div class="h4 text-muted text-decoration-line-through mb-2">@product.BasePrice.ToString("N0")đ</div>
                     }
                     else
                     {
-                        <div class="display-6 fw-bold">@product.BasePrice.ToString("N0")đ</div>
+                        <div class="display-4 fw-bold" style="color: #667eea;">@product.BasePrice.ToString("N0")đ</div>
                     }
                 </div>
 
-                <div class="mb-4">
-                    <p class="text-muted lead" style="font-size: 1.1rem;">@Html.Raw(product.ShortDescription ?? "Sản phẩm chất lượng cao từ WearMate.")</p>
-                </div>
+                @if (!string.IsNullOrEmpty(product.ShortDescription))
+                {
+                    <div class="alert alert-info border-0 mb-4" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);">
+                        <i class="bi bi-info-circle me-2"></i>@Html.Raw(product.ShortDescription)
+                    </div>
+                }
 
-                <hr class="my-4 opacity-10">
+                <hr class="my-4" />
 
-                <!-- Variant selectors -->
                 <div class="mb-4">
                     @if (Model.Variants != null && Model.Variants.Any())
                     {
                         @if (Model.Variants.Any(v => !string.IsNullOrEmpty(v.Color)))
                         {
                             <div class="mb-4">
-                                <label class="fw-bold mb-2 d-block">Màu sắc: <span class="fw-normal" x-text="selectedColor || 'Chọn màu'"></span></label>
+                                <label class="fw-bold mb-3 d-flex align-items-center gap-2">
+                                    <i class="bi bi-palette"></i>Màu sắc: 
+                                    <span class="fw-normal text-primary" x-text="selectedColor || 'Chọn màu'"></span>
+                                </label>
                                 <div class="d-flex gap-2 flex-wrap">
                                     @foreach (var color in Model.Variants.Where(v => !string.IsNullOrWhiteSpace(v.Color)).Select(v => v.Color).Distinct())
                                     {
                                         <button type="button" 
-                                                class="btn btn-outline-dark rounded-pill px-3" 
-                                                :class="{ 'btn-dark text-white': selectedColor === '@color', 'btn-outline-dark': selectedColor !== '@color' }" 
+                                                class="btn rounded-pill px-4 py-2 shadow-sm" 
+                                                style="transition: all 0.2s;" 
+                                                :class="{ 'btn-primary shadow': selectedColor === '@color', 'btn-outline-secondary': selectedColor !== '@color' }" 
                                                 @@click="selectColor('@color')">
                                             @color
                                         </button>
@@ -101,17 +139,22 @@
                         @if (Model.Variants.Any(v => !string.IsNullOrEmpty(v.Size)))
                         {
                             <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <label class="fw-bold">Kích thước: <span class="fw-normal" x-text="selectedSize || 'Chọn size'"></span></label>
-                                    <a href="#" class="text-muted small text-decoration-underline">Hướng dẫn chọn size</a>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <label class="fw-bold d-flex align-items-center gap-2">
+                                        <i class="bi bi-rulers"></i>Kích thước: 
+                                        <span class="fw-normal text-primary" x-text="selectedSize || 'Chọn size'"></span>
+                                    </label>
+                                    <a href="#size-guide" class="text-decoration-none small" data-bs-toggle="modal" data-bs-target="#sizeGuideModal">
+                                        <i class="bi bi-question-circle me-1"></i>Hướng dẫn chọn size
+                                    </a>
                                 </div>
                                 <div class="d-flex gap-2 flex-wrap">
                                     @foreach (var size in Model.Variants.Where(v => !string.IsNullOrWhiteSpace(v.Size)).Select(v => v.Size).Distinct())
                                     {
                                         <button type="button" 
-                                                class="btn btn-outline-dark" 
-                                                style="min-width: 48px; height: 48px;"
-                                                :class="{ 'btn-dark text-white': selectedSize === '@size', 'btn-outline-dark': selectedSize !== '@size' }" 
+                                                class="btn shadow-sm" 
+                                                style="min-width: 60px; height: 60px; transition: all 0.2s; font-weight: 600;"
+                                                :class="{ 'btn-primary shadow': selectedSize === '@size', 'btn-outline-secondary': selectedSize !== '@size' }" 
                                                 @@click="selectSize('@size')">
                                             @size
                                         </button>
@@ -119,111 +162,236 @@
                                 </div>
                             </div>
                         }
+                        
+                        <div class="alert alert-light border mb-4" x-show="selectedVariant" x-cloak>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>SKU:</strong> <span x-text="selectedVariant?.sku || 'N/A'"></span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success" x-show="selectedVariant?.stockQuantity > 10">
+                                        <i class="bi bi-check-circle me-1"></i>Còn nhiều hàng
+                                    </span>
+                                    <span class="badge bg-warning text-dark" x-show="selectedVariant?.stockQuantity > 0 && selectedVariant?.stockQuantity <= 10">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>Sắp hết hàng
+                                    </span>
+                                    <span class="badge bg-danger" x-show="!selectedVariant?.stockQuantity || selectedVariant?.stockQuantity <= 0">
+                                        <i class="bi bi-x-circle me-1"></i>Hết hàng
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     }
                 </div>
 
-                <!-- Add to Cart -->
                 <div class="d-flex gap-3 mb-4">
-                    <div class="input-group" style="width: 140px;">
-                        <button class="btn btn-outline-secondary border-end-0" @@click="decreaseQty"><i class="bi bi-dash"></i></button>
-                        <input type="text" class="form-control text-center border-start-0 border-end-0 bg-transparent" x-model="qty" readonly />
-                        <button class="btn btn-outline-secondary border-start-0" @@click="increaseQty"><i class="bi bi-plus"></i></button>
+                    <div class="input-group shadow-sm" style="width: 150px;">
+                        <button class="btn btn-outline-secondary" @@click="decreaseQty">
+                            <i class="bi bi-dash-lg"></i>
+                        </button>
+                        <input type="text" class="form-control text-center fw-bold" x-model="qty" readonly style="font-size: 1.1rem;" />
+                        <button class="btn btn-outline-secondary" @@click="increaseQty">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
                     </div>
-                    <button class="btn btn-primary flex-grow-1 rounded-pill py-3 fw-bold shadow-sm" 
-                            @@click="addToCart()" 
-                            :disabled="!selectedVariant || !selectedVariant.isActive || !productIsActive">
-                        <i class="bi bi-bag-plus me-2"></i> Thêm vào giỏ hàng
+                    <button class="btn btn-primary flex-grow-1 rounded-pill py-3 fw-bold shadow-lg" 
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; transition: all 0.3s;"
+                            @@click="addToCart" 
+                            @@mouseenter="$el.style.transform = 'translateY(-2px)'"
+                            @@mouseleave="$el.style.transform = 'translateY(0)'"
+                            :disabled="!selectedVariant || !productIsActive || !selectedVariant.stockQuantity || selectedVariant.stockQuantity <= 0">
+                        <i class="bi bi-cart-plus me-2"></i>Thêm vào giỏ hàng
                     </button>
                 </div>
 
-                <!-- Trust Badges -->
-                <div class="row g-3 text-muted small mt-2">
-                    <div class="col-6 d-flex align-items-center gap-2">
-                        <i class="bi bi-truck fs-5"></i> Miễn phí vận chuyển
+                <button class="btn btn-outline-danger w-100 rounded-pill py-3 mb-4 shadow-sm">
+                    <i class="bi bi-heart me-2"></i>Yêu thích
+                </button>
+
+                <div class="row g-3 text-muted small border-top pt-4">
+                    <div class="col-12 col-md-6 d-flex align-items-center gap-3 p-3 bg-light rounded">
+                        <i class="bi bi-truck fs-3 text-primary"></i>
+                        <div>
+                            <strong class="d-block text-dark">Miễn phí vận chuyển</strong>
+                            <small>Cho đơn hàng từ 500.000đ</small>
+                        </div>
                     </div>
-                    <div class="col-6 d-flex align-items-center gap-2">
-                        <i class="bi bi-arrow-repeat fs-5"></i> Đổi trả trong 30 ngày
+                    <div class="col-12 col-md-6 d-flex align-items-center gap-3 p-3 bg-light rounded">
+                        <i class="bi bi-arrow-repeat fs-3 text-success"></i>
+                        <div>
+                            <strong class="d-block text-dark">Đổi trả dễ dàng</strong>
+                            <small>Trong vòng 30 ngày</small>
+                        </div>
                     </div>
-                    <div class="col-6 d-flex align-items-center gap-2">
-                        <i class="bi bi-shield-check fs-5"></i> Bảo hành chính hãng
+                    <div class="col-12 col-md-6 d-flex align-items-center gap-3 p-3 bg-light rounded">
+                        <i class="bi bi-shield-check fs-3 text-info"></i>
+                        <div>
+                            <strong class="d-block text-dark">Bảo hành chính hãng</strong>
+                            <small>Cam kết 100%</small>
+                        </div>
                     </div>
-                    <div class="col-6 d-flex align-items-center gap-2">
-                        <i class="bi bi-check-circle fs-5"></i> Kiểm tra hàng trước khi nhận
+                    <div class="col-12 col-md-6 d-flex align-items-center gap-3 p-3 bg-light rounded">
+                        <i class="bi bi-check-circle fs-3 text-warning"></i>
+                        <div>
+                            <strong class="d-block text-dark">Kiểm tra trước</strong>
+                            <small>Khi nhận hàng</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-3 bg-light rounded">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-share text-primary"></i>
+                        <strong>Chia sẻ:</strong>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" style="width: 40px; height: 40px;" title="Facebook">
+                            <i class="bi bi-facebook"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-info rounded-circle" style="width: 40px; height: 40px;" title="Twitter">
+                            <i class="bi bi-twitter"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-danger rounded-circle" style="width: 40px; height: 40px;" title="Pinterest">
+                            <i class="bi bi-pinterest"></i>
+                        </a>
+                        <a href="#" class="btn btn-sm btn-outline-success rounded-circle" style="width: 40px; height: 40px;" title="WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Details Tabs -->
     <div class="mt-5 pt-5">
-        <ul class="nav nav-tabs nav-fill mb-4 border-bottom-0" id="productTabs" role="tablist">
+        <ul class="nav nav-tabs nav-fill mb-4 border-0" id="productTabs" role="tablist" style="gap: 1rem;">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active fw-bold border-0 border-bottom border-2 rounded-0" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">Mô tả sản phẩm</button>
+                <button class="nav-link active fw-bold border-0 rounded-3 shadow-sm" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc" type="button" role="tab">
+                    <i class="bi bi-file-text me-2"></i>Mô tả sản phẩm
+                </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold border-0 border-bottom border-2 rounded-0" id="spec-tab" data-bs-toggle="tab" data-bs-target="#spec" type="button" role="tab">Thông số kỹ thuật</button>
+                <button class="nav-link fw-bold border-0 rounded-3 shadow-sm" id="spec-tab" data-bs-toggle="tab" data-bs-target="#spec" type="button" role="tab">
+                    <i class="bi bi-list-check me-2"></i>Thông số kỹ thuật
+                </button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link fw-bold border-0 border-bottom border-2 rounded-0" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Đánh giá</button>
+                <button class="nav-link fw-bold border-0 rounded-3 shadow-sm" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">
+                    <i class="bi bi-star me-2"></i>Đánh giá
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-bold border-0 rounded-3 shadow-sm" id="shipping-tab" data-bs-toggle="tab" data-bs-target="#shipping" type="button" role="tab">
+                    <i class="bi bi-truck me-2"></i>Vận chuyển & Đổi trả
+                </button>
             </li>
         </ul>
-        <div class="tab-content bg-white p-5 rounded-4 shadow-sm" id="productTabsContent">
+        <div class="tab-content bg-white p-5 rounded-4 shadow" id="productTabsContent">
             <div class="tab-pane fade show active" id="desc" role="tabpanel">
-                <div class="prose" style="max-width: 800px; margin: 0 auto;">
-                    @Html.Raw(product.Description ?? "Chưa có mô tả chi tiết cho sản phẩm này.")
+                <div class="prose" style="max-width: 900px; margin: 0 auto; line-height: 1.8;">
+                    @Html.Raw(product.Description ?? "<p class='text-center text-muted'>Chưa có mô tả chi tiết cho sản phẩm này.</p>")
                 </div>
             </div>
             <div class="tab-pane fade" id="spec" role="tabpanel">
-                <table class="table table-borderless" style="max-width: 600px; margin: 0 auto;">
-                    <tbody>
-                        <tr>
-                            <td class="text-muted w-50">Mã sản phẩm</td>
-                            <td class="fw-medium">@product.Sku</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Thương hiệu</td>
-                            <td class="fw-medium">@(product.Brand?.Name ?? "N/A")</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Danh mục</td>
-                            <td class="fw-medium">@(product.Category?.Name ?? "N/A")</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-responsive" style="max-width: 700px; margin: 0 auto;">
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <td class="text-muted w-50 py-3"><i class="bi bi-upc me-2"></i>Mã sản phẩm</td>
+                                <td class="fw-medium py-3">@product.Sku</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted py-3"><i class="bi bi-award me-2"></i>Thương hiệu</td>
+                                <td class="fw-medium py-3">@(product.Brand?.Name ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted py-3"><i class="bi bi-tag me-2"></i>Danh mục</td>
+                                <td class="fw-medium py-3">@(product.Category?.Name ?? "N/A")</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted py-3"><i class="bi bi-box-seam me-2"></i>Tình trạng</td>
+                                <td class="fw-medium py-3">
+                                    @if (product.IsActive)
+                                    {
+                                        <span class="badge bg-success">Còn hàng</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Tạm ngưng</span>
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="tab-pane fade" id="review" role="tabpanel">
                 <div class="text-center py-5">
                     <i class="bi bi-chat-square-text fs-1 text-muted mb-3 d-block"></i>
-                    <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
-                    <button class="btn btn-outline-primary rounded-pill">Viết đánh giá</button>
+                    <h5 class="mb-3">Chưa có đánh giá nào</h5>
+                    <p class="text-muted mb-4">Hãy là người đầu tiên đánh giá sản phẩm này!</p>
+                    <button class="btn btn-primary rounded-pill px-4 shadow-sm">
+                        <i class="bi bi-pencil-square me-2"></i>Viết đánh giá
+                    </button>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="shipping" role="tabpanel">
+                <div style="max-width: 800px; margin: 0 auto;">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-4 h-100">
+                                <h5 class="fw-bold mb-3"><i class="bi bi-truck text-primary me-2"></i>Chính sách vận chuyển</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Miễn phí ship đơn từ 500.000đ</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Giao hàng toàn quốc</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Giao hàng trong 2-5 ngày</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Kiểm tra hàng khi nhận</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="border rounded-3 p-4 h-100">
+                                <h5 class="fw-bold mb-3"><i class="bi bi-arrow-repeat text-success me-2"></i>Chính sách đổi trả</h5>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Đổi trả trong 30 ngày</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Hoàn tiền 100%</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Miễn phí đổi size</li>
+                                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i>Hỗ trợ 24/7</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Related products -->
     @if (Model.RelatedProducts.Any())
     {
         <div class="mt-5 pt-5 border-top">
-            <h3 class="fw-bold mb-4 text-center">Có thể bạn cũng thích</h3>
+            <div class="text-center mb-5">
+                <h3 class="fw-bold display-6 mb-2">Sản phẩm tương tự</h3>
+                <p class="text-muted">Khám phá thêm nhiều sản phẩm khác</p>
+            </div>
             <div class="row g-4">
                 @foreach (var p in Model.RelatedProducts.Take(4))
                 {
                     <div class="col-lg-3 col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <div class="product-img-wrapper">
-                                <img src="@(p.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@p.Name">
-                                <div class="product-actions">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@p.Slug" class="action-btn" title="Xem chi tiết">
+                        <div class="card product-card h-100 border-0 shadow-sm" style="transition: all 0.3s;">
+                            <div class="product-img-wrapper position-relative overflow-hidden">
+                                <img src="@(p.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@p.Name" class="card-img-top">
+                                <div class="product-actions position-absolute top-50 start-50 translate-middle" style="opacity: 0; transition: opacity 0.3s;">
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@p.Slug" class="btn btn-primary rounded-circle shadow" style="width: 50px; height: 50px;" title="Xem chi tiết">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                 </div>
                             </div>
                             <div class="card-body text-center">
                                 <div class="text-muted small mb-1">@p.Category?.Name</div>
-                                <h6 class="fw-bold text-truncate mb-2"><a asp-controller="Products" asp-action="Detail" asp-route-slug="@p.Slug" class="text-dark text-decoration-none">@p.Name</a></h6>
-                                <div class="fw-bold">@(p.SalePrice.HasValue ? p.SalePrice.Value.ToString("N0") : p.BasePrice.ToString("N0"))đ</div>
+                                <h6 class="fw-bold text-truncate mb-2">
+                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@p.Slug" class="text-dark text-decoration-none">@p.Name</a>
+                                </h6>
+                                <div class="fw-bold text-primary">@(p.SalePrice.HasValue ? p.SalePrice.Value.ToString("N0") : p.BasePrice.ToString("N0"))đ</div>
                             </div>
                         </div>
                     </div>
@@ -234,7 +402,68 @@
 
 </div>
 
-<!-- Alpine.js logic -->
+<!-- Size Guide Modal -->
+<div class="modal fade" id="sizeGuideModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-rulers me-2"></i>Hướng dẫn chọn size</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Size</th>
+                                <th>Chiều cao (cm)</th>
+                                <th>Cân nặng (kg)</th>
+                                <th>Vòng ngực (cm)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>S</strong></td>
+                                <td>155-160</td>
+                                <td>45-50</td>
+                                <td>80-85</td>
+                            </tr>
+                            <tr>
+                                <td><strong>M</strong></td>
+                                <td>160-165</td>
+                                <td>50-55</td>
+                                <td>85-90</td>
+                            </tr>
+                            <tr>
+                                <td><strong>L</strong></td>
+                                <td>165-170</td>
+                                <td>55-65</td>
+                                <td>90-95</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XL</strong></td>
+                                <td>170-175</td>
+                                <td>65-75</td>
+                                <td>95-100</td>
+                            </tr>
+                            <tr>
+                                <td><strong>XXL</strong></td>
+                                <td>175-180</td>
+                                <td>75-85</td>
+                                <td>100-105</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="alert alert-info border-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Lưu ý:</strong> Đây là bảng size tham khảo. Vui lòng liên hệ với chúng tôi nếu cần tư vấn thêm.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function productDetail() {
         return {
@@ -244,16 +473,23 @@
             selectedColor: null,
             selectedSize: null,
             selectedVariant: null,
+            productId: "@Model.Product.Id",
+            cartAddUrl: "@Url.Action("Add","Cart", new { culture = (string?)ViewContext.RouteData.Values["culture"] })",
             productIsActive: @((Model.Product.IsActive) ? "true" : "false"),
             variants: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Variants)),
 
             init() {
+                console.log('ProductDetail initialized');
+                console.log('Variants:', this.variants);
+                console.log('ProductIsActive:', this.productIsActive);
+                
                 this.selectedImage = this.images.length > 0 ? this.images[0] : ("@(Model.Product.ThumbnailUrl ?? "/images/product-placeholder.png")");
-                // preselect if single variant
                 if (this.variants.length === 1) {
                     this.selectedVariant = this.variants[0];
                     if(this.selectedVariant.color) this.selectedColor = this.selectedVariant.color;
                     if(this.selectedVariant.size) this.selectedSize = this.selectedVariant.size;
+                    console.log('Auto-selected variant:', this.selectedVariant);
+                    console.log('Variant stock:', this.selectedVariant.stockQuantity);
                 }
             },
 
@@ -267,8 +503,21 @@
                 this.updateVariant();
             },
 
-            increaseQty() { this.qty++; },
-            decreaseQty() { if (this.qty > 1) this.qty--; },
+            increaseQty() { 
+                if (this.selectedVariant && this.selectedVariant.stockQuantity > 0) {
+                    if (this.qty < this.selectedVariant.stockQuantity) {
+                        this.qty++;
+                    } else {
+                        this.showToast('Đã đạt số lượng tối đa trong kho', 'warning');
+                    }
+                } else {
+                    this.qty++;
+                }
+            },
+            
+            decreaseQty() { 
+                if (this.qty > 1) this.qty--; 
+            },
 
             updateVariant() {
                 if (!this.variants || this.variants.length === 0) return;
@@ -276,48 +525,143 @@
                     (this.selectedColor ? (v.color && v.color.toLowerCase() === this.selectedColor.toLowerCase()) : true)
                     && (this.selectedSize ? (v.size && v.size.toLowerCase() === this.selectedSize.toLowerCase()) : true)
                 );
+                console.log('Selected variant updated:', this.selectedVariant);
+                if (this.selectedVariant) {
+                    console.log('Stock quantity:', this.selectedVariant.stockQuantity);
+                }
             },
 
-            addToCart() {
-                if (!this.productIsActive) { alert('Sản phẩm hiện đang tạm ẩn'); return; }
-                if (!this.selectedVariant) { alert('Vui lòng chọn đầy đủ tùy chọn (Màu sắc, Kích thước)'); return; }
+            addToCart(event) {
+                if (!this.productIsActive) { 
+                    this.showToast('Sản phẩm hiện đang tạm ẩn', 'danger'); 
+                    return; 
+                }
+                if (!this.selectedVariant) { 
+                    this.showToast('Vui lòng chọn đầy đủ tùy chọn (Màu sắc, Kích thước)', 'warning'); 
+                    return; 
+                }
+                if (this.selectedVariant.stockQuantity <= 0) {
+                    this.showToast('Sản phẩm đã hết hàng', 'danger');
+                    return;
+                }
 
-                // Basic feedback — integrate real cart API as needed
-                fetch('/Cart/Add', {
+                const payload = {
+                    productId: this.productId,
+                    variantId: this.selectedVariant.id,
+                    quantity: this.qty
+                };
+                const baseUrl = (this.cartAddUrl || '/Cart/Add').replace(/\/$/, "");
+                const routeUrl = `${baseUrl}/${payload.productId}/${payload.variantId}/${payload.quantity}`;
+                const queryUrl = `${baseUrl}?${new URLSearchParams(payload).toString()}`;
+
+                // Show loading state
+                const addButton = event?.target?.closest('button') || event?.target;
+                const originalText = addButton?.innerHTML;
+                if (addButton) {
+                    addButton.disabled = true;
+                    addButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang xử lý...';
+                }
+
+                fetch(routeUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productVariantId: this.selectedVariant.id, quantity: this.qty })
-                }).then(r => {
-                    if (r.ok) { 
-                        // Show toast or alert
-                        const toast = document.createElement('div');
-                        toast.className = 'position-fixed bottom-0 end-0 p-3';
-                        toast.style.zIndex = '1100';
-                        toast.innerHTML = `
-                            <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                                <div class="d-flex">
-                                    <div class="toast-body">
-                                        <i class="bi bi-check-circle me-2"></i> Đã thêm vào giỏ hàng thành công!
-                                    </div>
-                                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                                </div>
-                            </div>
-                        `;
-                        document.body.appendChild(toast);
-                        setTimeout(() => toast.remove(), 3000);
-                        
-                        // Update cart count if possible (reload for now)
-                        setTimeout(() => location.reload(), 1000);
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                })
+                .then(async r => {
+                    if (r.status === 405 || r.status === 404) {
+                        console.warn('POST failed with ' + r.status + ', retrying with GET');
+                        return fetch(queryUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
                     }
-                    else alert('Không thể thêm vào giỏ hàng');
-                }).catch(e => alert('Lỗi: ' + e.message));
+                    return r;
+                })
+                .then(async r => {
+                    if (!r.ok) {
+                        const errorData = await r.json().catch(() => ({ message: 'Không thể thêm vào giỏ hàng' }));
+                        throw new Error(errorData.message || 'Không thể thêm vào giỏ hàng');
+                    }
+                    const data = await r.json();
+                    this.showToast(data.message || 'Đã thêm vào giỏ hàng thành công!', 'success');
+                    
+                    // Update cart count in header if exists
+                    if (data.cartCount !== undefined && data.cartCount > 0) {
+                        const cartLink = document.querySelector('a[href*="/Cart"]');
+                        if (cartLink) {
+                            let cartBadge = cartLink.querySelector('.cart-badge');
+                            if (!cartBadge) {
+                                cartBadge = document.createElement('span');
+                                cartBadge.className = 'cart-badge shadow-sm';
+                                cartLink.appendChild(cartBadge);
+                            }
+                            cartBadge.textContent = data.cartCount;
+                        }
+                    }
+                    
+                    // Reset quantity after successful add
+                    this.qty = 1;
+                    
+                    // Optional: reload page after 1.5s or just restore button
+                    setTimeout(() => {
+                        if (addButton && originalText) {
+                            addButton.disabled = false;
+                            addButton.innerHTML = originalText;
+                        }
+                    }, 1500);
+                })
+                .catch(e => {
+                    this.showToast('Lỗi: ' + e.message, 'danger');
+                    if (addButton && originalText) {
+                        addButton.disabled = false;
+                        addButton.innerHTML = originalText;
+                    }
+                });
+            },
+
+            showToast(message, type = 'success') {
+                const bgClass = type === 'success' ? 'bg-success' : type === 'warning' ? 'bg-warning text-dark' : 'bg-danger';
+                const icon = type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'x-circle';
+                
+                const toast = document.createElement('div');
+                toast.className = 'position-fixed bottom-0 end-0 p-3';
+                toast.style.zIndex = '1100';
+                toast.innerHTML = `
+                    <div class="toast show align-items-center text-white ${bgClass} border-0 shadow-lg" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="bi bi-${icon} me-2"></i>${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3500);
             }
         }
     }
 </script>
 
-@* Structured data JSON-LD (server-serialized to avoid Razor @ parsing) *@
-@{
+<style>
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    .product-card:hover .product-actions {
+        opacity: 1 !important;
+    }
+    .nav-tabs .nav-link {
+        transition: all 0.2s;
+    }
+    .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+    }
+    [x-cloak] { display: none !important; }
+</style>
+
+@{ 
     var ld = new Dictionary<string, object?>();
     ld["@context"] = "https://schema.org/";
     ld["@type"] = "Product";
@@ -325,6 +669,10 @@
     ld["image"] = Model.Images.Select(i => i.ImageUrl).ToArray();
     ld["description"] = metaDescription;
     ld["sku"] = Model.Product.Sku;
+    ld["brand"] = new Dictionary<string, object?> {
+        ["@type"] = "Brand",
+        ["name"] = Model.Product.Brand?.Name ?? "WearMate"
+    };
     ld["offers"] = new Dictionary<string, object?>
     {
         ["@type"] = "Offer",

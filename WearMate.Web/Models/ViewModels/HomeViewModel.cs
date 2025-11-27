@@ -49,6 +49,7 @@ public class ProductDetailViewModel
     public ProductDto Product { get; set; } = new();
 
     public List<ProductVariantDto> Variants { get; set; } = new();
+    public List<ProductVariantWithStock> VariantStocks { get; set; } = new();
     public List<ProductImageDto> Images { get; set; } = new();
     public List<ProductDto> RelatedProducts { get; set; } = new();
 
@@ -57,10 +58,23 @@ public class ProductDetailViewModel
     public string? SelectedSize { get; set; }
 }
 
+public class ProductVariantWithStock
+{
+    public Guid Id { get; set; }
+    public string Sku { get; set; } = string.Empty;
+    public string? Size { get; set; }
+    public string? Color { get; set; }
+    public decimal PriceAdjustment { get; set; }
+    public bool IsActive { get; set; }
+    public int Available { get; set; }
+    public bool InStock => Available > 0;
+}
+
 
 public class CheckoutViewModel
 {
     public List<CartItemViewModel> CartItems { get; set; } = new();
+    public List<Guid> SelectedVariantIds { get; set; } = new();
 
     // Prices
     public string ShippingFullName { get; set; } = string.Empty;
@@ -70,6 +84,8 @@ public class CheckoutViewModel
     public decimal Subtotal { get; set; }
     public decimal ShippingFee { get; set; }
     public decimal Total => Subtotal + ShippingFee;
+    public string? SePayQrUrl { get; set; }
+    public string? TransferContent { get; set; }
 
     // Shipping info
     public string FullName { get; set; } = "";
@@ -91,6 +107,7 @@ public class CheckoutViewModel
 
 public class CartItemViewModel
 {
+    public Guid ProductId { get; set; }
     public Guid ProductVariantId { get; set; }
     public string ProductName { get; set; } = "";
     public string? ProductImage { get; set; }

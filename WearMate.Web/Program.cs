@@ -21,8 +21,7 @@ builder.WebHost.UseUrls(port);
 
 Console.WriteLine($"🚀 WearMate.Web will run on: {port}");
 
-// Localization
-builder.Services.AddLocalization(); // Removed ResourcesPath to use default behavior with marker class
+builder.Services.AddLocalization();
 builder.Services.AddControllersWithViews()
     .AddViewLocalization()
     .AddDataAnnotationsLocalization();
@@ -32,7 +31,6 @@ builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOpti
     options.HttpsPort = 443;
 });
 
-// Configure supported cultures
 var supportedCultures = new[]
 {
     new CultureInfo("en"),
@@ -46,21 +44,13 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedUICultures = supportedCultures;
     
     options.RequestCultureProviders.Clear();
-    
-    // Priority 1: Route Data (URL)
     options.RequestCultureProviders.Add(new RouteDataRequestCultureProvider { Options = options });
-    
-    // Priority 2: Cookie (Fallback if route doesn't match)
     options.RequestCultureProviders.Add(new CookieRequestCultureProvider { Options = options });
 });
 
-// HttpContextAccessor for TagHelpers
 builder.Services.AddHttpContextAccessor();
-
-// AuthService
 builder.Services.AddScoped<AuthService>();
 
-// Session
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
@@ -69,14 +59,12 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Initialize ImageHelper with defaults
 var defaultProductImage = Environment.GetEnvironmentVariable("DEFAULT_PRODUCT_IMAGE") ?? string.Empty;
 var defaultAvatarImage = Environment.GetEnvironmentVariable("DEFAULT_AVATAR_IMAGE") ?? string.Empty;
 var bucket = Environment.GetEnvironmentVariable("SUPABASE_STORAGE_BUCKET") ?? "public";
 var storageUrl = Environment.GetEnvironmentVariable("SUPABASE_URL") ?? throw new Exception("SUPABASE_STORAGE_URL not found");
 ImageHelper.SetDefaults(storageUrl, bucket, defaultProductImage, defaultAvatarImage);
 
-// HttpClients for APIs
 var productApiUrl = Environment.GetEnvironmentVariable("MS_PRODUCT") ?? "http://localhost:6001";
 var orderApiUrl = Environment.GetEnvironmentVariable("MS_ORDER") ?? "http://localhost:6003";
 var chatApiUrl = Environment.GetEnvironmentVariable("MS_CHAT") ?? "http://localhost:6004";
@@ -87,7 +75,6 @@ builder.Services.AddHttpClient<ProductApiClient>(client =>
     client.BaseAddress = new Uri(productApiUrl);
 });
 
-// Named client for compatibility with CreateClient("ProductAPI")
 builder.Services.AddHttpClient("ProductAPI", client =>
 {
     client.BaseAddress = new Uri(productApiUrl);
@@ -98,8 +85,12 @@ builder.Services.AddHttpClient<OrderApiClient>(client =>
     client.BaseAddress = new Uri(orderApiUrl);
 });
 
-// Named client for compatibility with CreateClient("OrderAPI")
 builder.Services.AddHttpClient("OrderAPI", client =>
+{
+    client.BaseAddress = new Uri(orderApiUrl);
+});
+
+builder.Services.AddHttpClient<CartApiClient>(client =>
 {
     client.BaseAddress = new Uri(orderApiUrl);
 });
@@ -109,7 +100,6 @@ builder.Services.AddHttpClient<ChatApiClient>(client =>
     client.BaseAddress = new Uri(chatApiUrl);
 });
 
-// Named client for compatibility with CreateClient("ChatAPI")
 builder.Services.AddHttpClient("ChatAPI", client =>
 {
     client.BaseAddress = new Uri(chatApiUrl);
@@ -120,7 +110,6 @@ builder.Services.AddHttpClient<InventoryApiClient>(client =>
     client.BaseAddress = new Uri(inventoryApiUrl);
 });
 
-// Named client for compatibility with CreateClient("InventoryAPI")
 builder.Services.AddHttpClient("InventoryAPI", client =>
 {
     client.BaseAddress = new Uri(inventoryApiUrl);
@@ -143,7 +132,6 @@ builder.Logging.AddConsole();
 var app = builder.Build();
 app.Use((context, next) =>
 {
-    // Cloudflare sẽ gửi header này nếu request là HTTPS
     if (context.Request.Headers.ContainsKey("CF-Visitor"))
     {
         context.Request.Scheme = "https";
@@ -165,22 +153,18 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseRouting();
 
-// Use culture redirect middleware before request localization
 app.UseMiddleware<WearMate.Web.Middleware.CultureRedirectMiddleware>();
 
 app.UseRequestLocalization();
 app.UseSession();
 app.UseAuthorization();
 
-// Attribute-routed APIs (e.g., product variant proxy)
 app.MapControllers();
 
-// Admin area route WITHOUT culture
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-// Default route WITH culture
 app.MapControllerRoute(
     name: "defaultWithCulture",
     pattern: "{culture}/{controller=Home}/{action=Index}/{id?}",

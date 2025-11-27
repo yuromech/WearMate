@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using WearMate.Shared.DTOs.Inventory;
 using WearMate.Web.ApiClients;
@@ -165,7 +165,7 @@ public class InventoryController : Controller
     public async Task<IActionResult> StockIn()
     {
         ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-        ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+        ViewBag.Products = await GetProductsWithVariantsAsync();
 
         return View(new StockInDto());
     }
@@ -176,7 +176,7 @@ public class InventoryController : Controller
         if (!ModelState.IsValid)
         {
             ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-            ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+            ViewBag.Products = await GetProductsWithVariantsAsync();
             return View(model);
         }
 
@@ -200,7 +200,7 @@ public class InventoryController : Controller
         }
 
         ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-        ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+        ViewBag.Products = await GetProductsWithVariantsAsync();
         return View(model);
     }
 
@@ -208,7 +208,7 @@ public class InventoryController : Controller
     public async Task<IActionResult> StockOut()
     {
         ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-        ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+        ViewBag.Products = await GetProductsWithVariantsAsync();
 
         return View(new StockOutDto());
     }
@@ -219,7 +219,7 @@ public class InventoryController : Controller
         if (!ModelState.IsValid)
         {
             ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-            ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+            ViewBag.Products = await GetProductsWithVariantsAsync();
             return View(model);
         }
 
@@ -243,7 +243,7 @@ public class InventoryController : Controller
         }
 
         ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-        ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+        ViewBag.Products = await GetProductsWithVariantsAsync();
         return View(model);
     }
 
@@ -251,7 +251,7 @@ public class InventoryController : Controller
     public async Task<IActionResult> Transfer()
     {
         ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-        ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+        ViewBag.Products = await GetProductsWithVariantsAsync();
 
         return View(new StockTransferDto());
     }
@@ -262,7 +262,7 @@ public class InventoryController : Controller
         if (!ModelState.IsValid)
         {
             ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-            ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+            ViewBag.Products = await GetProductsWithVariantsAsync();
             return View(model);
         }
 
@@ -286,7 +286,7 @@ public class InventoryController : Controller
         }
 
         ViewBag.Warehouses = await _inventoryApi.GetWarehousesAsync() ?? new();
-        ViewBag.Products = await _productApi.GetProductsAsync(1, 100) ?? new();
+        ViewBag.Products = await GetProductsWithVariantsAsync();
         return View(model);
     }
 
@@ -306,4 +306,33 @@ public class InventoryController : Controller
             return Guid.Empty;
         }
     }
+    private async Task<List<WearMate.Shared.DTOs.Products.ProductDto>> GetProductsWithVariantsAsync()
+    {
+        var all = new List<WearMate.Shared.DTOs.Products.ProductDto>();
+        var pageIndex = 1;
+        const int pageSize = 100;
+
+        while (true)
+        {
+            var page = await _productApi.GetProductsAsync(pageIndex, pageSize);
+            var items = page?.Items ?? new List<WearMate.Shared.DTOs.Products.ProductDto>();
+            if (!items.Any()) break;
+
+            foreach (var p in items)
+            {
+                if (p.Variants == null || !p.Variants.Any())
+                {
+                    p.Variants = await _productApi.GetVariantsAsync(p.Id) ?? new();
+                }
+            }
+
+            all.AddRange(items);
+            if (items.Count < pageSize) break;
+            pageIndex++;
+        }
+
+        return all;
+    }
+
 }
+

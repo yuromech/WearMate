@@ -143,4 +143,12 @@ public class InventoryApiClient : BaseApiClient
         var url = $"/api/warehouses/{id}";
         return await DeleteAsync(url);
     }
+
+    public async Task<CheckoutResultDto?> CheckoutInventoryAsync(CheckoutInventoryDto dto)
+    {
+        var url = "/api/inventory/checkout";
+        var response = await PostAsync<ApiResponse<CheckoutResultDto>>(url, dto);
+        return response?.Data;
+    }
 }
+

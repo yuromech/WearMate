@@ -9,11 +9,24 @@
 
 <div class="d-flex justify-content-center align-items-center" style="min-height:80vh;">
     <div class="card shadow-lg border-0 rounded-4 p-4" style="width: 420px;">
-        <h3 class="text-center mb-4 fw-bold">Welcome Back</h3>
+        <h3 class="text-center mb-4 fw-bold">Chào mừng trở lại</h3>
 
         @if (!string.IsNullOrEmpty(TempData["Error"] as string))
         {
-            <div class="alert alert-danger">@TempData["Error"]</div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Lỗi!</strong> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        @if (ViewData.ModelState.ErrorCount > 0)
+        {
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>
+                @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         }
 
         <form asp-action="Login" method="post">
@@ -21,35 +34,40 @@
             <input type="hidden" name="returnUrl" value="@ViewBag.ReturnUrl" />
 
             <div class="mb-3">
-                <label asp-for="Email" class="form-label">Email</label>
+                <label asp-for="Email" class="form-label fw-semibold">Email</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-white">
-                        <i class="bi bi-envelope"></i>
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-envelope text-primary"></i>
                     </span>
-                    <input asp-for="Email" class="form-control border-start-0" required />
+                    <input asp-for="Email" class="form-control border-start-0 ps-0" placeholder="Nhập email của bạn" required />
                 </div>
-                <span asp-validation-for="Email" class="text-danger small"></span>
+                <span asp-validation-for="Email" class="text-danger small d-block mt-1"></span>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Password" class="form-label">Password</label>
+                <label asp-for="Password" class="form-label fw-semibold">Mật khẩu</label>
                 <div class="input-group">
-                    <span class="input-group-text bg-white">
-                        <i class="bi bi-lock"></i>
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-lock text-primary"></i>
                     </span>
-                    <input asp-for="Password" class="form-control border-start-0" type="password" id="passwordInput" required />
+                    <input asp-for="Password" class="form-control border-start-0 ps-0" type="password" id="passwordInput" placeholder="Nhập mật khẩu" required />
                 </div>
-                <span asp-validation-for="Password" class="text-danger small"></span>
+                <span asp-validation-for="Password" class="text-danger small d-block mt-1"></span>
 
                 <div id="password-strength" class="small mt-1"></div>
             </div>
 
-            <button class="btn btn-primary w-100 mt-3 rounded-pill" style="padding:10px;">Login</button>
+            <button class="btn btn-primary w-100 mt-3 rounded-pill fw-semibold" style="padding:12px;">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
+            </button>
 
             <div class="text-center mt-3">
-                <a asp-action="ForgotPassword" class="text-decoration-none">Forgot password?</a>
+                <a asp-action="ForgotPassword" class="text-decoration-none text-muted">
+                    <i class="bi bi-question-circle me-1"></i>Quên mật khẩu?
+                </a>
                 <br />
-                <a asp-action="Register" class="text-decoration-none">Don’t have an account?</a>
+                <span class="text-muted">Chưa có tài khoản? </span>
+                <a asp-action="Register" class="text-decoration-none fw-semibold">Đăng ký ngay</a>
             </div>
         </form>
     </div>

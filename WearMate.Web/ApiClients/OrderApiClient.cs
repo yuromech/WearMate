@@ -19,7 +19,8 @@ public class OrderApiClient : BaseApiClient
     public async Task<OrderDto?> CreateOrderAsync(CreateOrderDto dto)
     {
         var url = "/api/orders";
-        return await PostAsync<OrderDto>(url, dto);
+        var api = await PostAsync<ApiResponse<OrderDto>>(url, dto);
+        return api?.Data;
     }
 
     /// <summary>
@@ -28,7 +29,8 @@ public class OrderApiClient : BaseApiClient
     public async Task<PaginatedResult<OrderDto>?> GetUserOrdersAsync(Guid userId, int page = 1, int pageSize = 10)
     {
         var url = $"/api/orders/user/{userId}?page={page}&pageSize={pageSize}";
-        return await GetAsync<PaginatedResult<OrderDto>>(url);
+        var api = await GetAsync<ApiResponse<PaginatedResult<OrderDto>>>(url);
+        return api?.Data;
     }
 
     /// <summary>
@@ -60,7 +62,8 @@ public class OrderApiClient : BaseApiClient
         if (userId.HasValue)
             url += $"&userId={userId}";
 
-        return await GetAsync<PaginatedResult<OrderDto>>(url);
+        var api = await GetAsync<ApiResponse<PaginatedResult<OrderDto>>>(url);
+        return api?.Data;
     }
 
     /// <summary>

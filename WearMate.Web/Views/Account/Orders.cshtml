@@ -1,0 +1,39 @@
+@model WearMate.Shared.DTOs.Common.PaginatedResult<WearMate.Shared.DTOs.Orders.OrderDto>
+@{
+    ViewData["Title"] = "Đơn hàng của tôi";
+}
+
+<div class="container py-5">
+    <h1 class="fw-bold mb-4" style="font-family: var(--font-heading);">Đơn hàng của tôi</h1>
+
+    @if (Model.Items.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày tạo</th>
+                        <th>Trạng thái</th>
+                        <th>Tổng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var order in Model.Items)
+                {
+                    <tr>
+                        <td class="fw-semibold">@order.OrderNumber</td>
+                        <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td><span class="badge bg-secondary">@order.Status</span></td>
+                        <td class="fw-bold">@order.Total.ToString("N0") đ</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5 text-muted">Bạn chưa có đơn hàng nào.</div>
+    }
+</div>

@@ -1,36 +1,40 @@
 ﻿@model WearMate.Web.Models.ViewModels.HomeViewModel
 @{
     ViewData["Title"] = "Home";
+    var heroBanners = (Model.HeroBanners != null && Model.HeroBanners.Any())
+        ? Model.HeroBanners
+        : new List<string>
+        {
+            "https://twmrmwmyjvquoppkomqu.supabase.co/storage/v1/object/public/wear-mate/herobanner/hero1.jpg",
+            "https://twmrmwmyjvquoppkomqu.supabase.co/storage/v1/object/public/wear-mate/herobanner/hero2.jpg",
+            "https://twmrmwmyjvquoppkomqu.supabase.co/storage/v1/object/public/wear-mate/herobanner/hero3.jpg"
+        };
 }
 
-<!-- HERO SECTION -->
-<section class="container-fluid p-0 mb-5">
-    <div class="hero-section position-relative mx-3 mt-3">
-        <img src="/images/banner1.jpg" alt="Hero Banner" class="w-100 h-100 object-fit-cover" style="object-position: center;">
-        <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
-            <div class="container px-5">
-                <div class="row">
-                    <div class="col-lg-7 text-white animate-fade-up">
-                        <div class="d-inline-block glass-effect px-4 py-2 rounded-pill mb-4 border-0">
-                            <span class="text-gradient-accent fw-bold text-uppercase tracking-wider small">@Localizer["NewCollection2025"]</span>
-                        </div>
-                        <h1 class="display-2 fw-bold mb-4" style="line-height: 1.1; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">
-                            @Localizer["HeroTitle"]<br>
-                            <span class="text-gradient-accent">@Localizer["HeroSubtitle"]</span>
-                        </h1>
-                        <p class="lead mb-5 opacity-90 fw-light" style="max-width: 600px;">@Localizer["HeroDesc"]</p>
-                        <div class="d-flex gap-3">
-                            <a asp-controller="Products" asp-action="Index" class="btn btn-primary btn-lg px-5 rounded-pill shadow-lg hover-lift">
-                                @Localizer["BuyNow"] <i class="bi bi-arrow-right ms-2"></i>
-                            </a>
-                            <a asp-controller="Products" asp-action="Index" asp-route-category="sale" class="btn btn-outline-light btn-lg px-5 rounded-pill hover-lift backdrop-blur">
-                                @Localizer["FlashSale"]
-                            </a>
+<!-- HERO SECTION - Minimal -->
+<section class="container-xxl my-5">
+    <div class="row g-3">
+        @for (int i = 0; i < heroBanners.Count; i++)
+        {
+            var hero = new { Title = i == 0 ? "Essentials" : i == 1 ? "Urban Daily" : "Weekend", Subtitle = i == 0 ? "Layer-ready staples" : i == 1 ? "Clean cuts, sharp looks" : "Soft textures, easy fit", Image = heroBanners[i] };
+            <div class="col-lg-4 col-md-6">
+                <div class="rounded-4 overflow-hidden position-relative shadow-sm bg-light hover-lift" style="height: 480px;">
+                    <img src="@hero.Image"
+                         alt="@hero.Title"
+                         class="w-100 h-100 object-fit-cover d-block"
+                         loading="lazy"
+                         onerror="this.src='https://placehold.co/800x1000?text=Banner'; this.onerror=null;" />
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-end p-4" style="background: linear-gradient(180deg, rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.45) 100%);">
+                        <div class="text-white">
+                            <div class="small text-uppercase mb-1 opacity-75">Maximum Quality</div>
+                            <h3 class="fw-bold mb-1">@hero.Title</h3>
+                            <p class="mb-3 text-white-50">@hero.Subtitle</p>
+                            <a asp-controller="Products" asp-action="Index" class="btn btn-light btn-sm rounded-pill px-3">@Localizer["BuyNow"]</a>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
     </div>
 </section>
 
@@ -39,8 +43,8 @@
     <div class="row g-4">
         <div class="col-md-3 col-6">
             <div class="d-flex align-items-center gap-3 p-4 rounded-4 glass-effect shadow-sm h-100 hover-lift">
-                <div class="rounded-circle bg-primary-subtle p-3 text-primary">
-                    <i class="bi bi-truck fs-4"></i>
+                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
+                    <i class="bi bi-truck fs-3"></i>
                 </div>
                 <div>
                     <h6 class="mb-1 fw-bold">@Localizer["FreeShipping"]</h6>
@@ -50,8 +54,8 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="d-flex align-items-center gap-3 p-4 rounded-4 glass-effect shadow-sm h-100 hover-lift">
-                <div class="rounded-circle bg-success-subtle p-3 text-success">
-                    <i class="bi bi-arrow-repeat fs-4"></i>
+                <div class="rounded-circle bg-success-subtle text-success d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
+                    <i class="bi bi-arrow-repeat fs-3"></i>
                 </div>
                 <div>
                     <h6 class="mb-1 fw-bold">@Localizer["EasyReturns"]</h6>
@@ -61,8 +65,8 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="d-flex align-items-center gap-3 p-4 rounded-4 glass-effect shadow-sm h-100 hover-lift">
-                <div class="rounded-circle bg-info-subtle p-3 text-info">
-                    <i class="bi bi-shield-check fs-4"></i>
+                <div class="rounded-circle bg-info-subtle text-info d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
+                    <i class="bi bi-shield-check fs-3"></i>
                 </div>
                 <div>
                     <h6 class="mb-1 fw-bold">@Localizer["SecurePayment"]</h6>
@@ -72,8 +76,8 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="d-flex align-items-center gap-3 p-4 rounded-4 glass-effect shadow-sm h-100 hover-lift">
-                <div class="rounded-circle bg-warning-subtle p-3 text-warning">
-                    <i class="bi bi-headset fs-4"></i>
+                <div class="rounded-circle bg-warning-subtle text-warning d-flex align-items-center justify-content-center flex-shrink-0" style="width: 64px; height: 64px;">
+                    <i class="bi bi-headset fs-3"></i>
                 </div>
                 <div>
                     <h6 class="mb-1 fw-bold">@Localizer["Support247"]</h6>
@@ -216,70 +220,6 @@
 }
 
 
-<!-- FEATURED PRODUCTS -->
-@if (Model.FeaturedProducts.Any())
-{
-    <section class="bg-light py-5 mb-5 position-relative overflow-hidden">
-        <!-- Decorative Background -->
-        <div class="position-absolute top-0 start-0 w-100 h-100 opacity-50" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
-        
-        <div class="container position-relative z-1">
-            <div class="text-center mb-5">
-                <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3">@Localizer["HotProducts"]</span>
-                <h2 class="fw-bold display-6">@Localizer["MostLoved"]</h2>
-                <p class="text-muted">@Localizer["MostLovedDesc"]</p>
-            </div>
-
-            <div class="row g-4">
-                @foreach (var product in Model.FeaturedProducts.Take(4))
-                {
-                    <div class="col-lg-3 col-md-4 col-6">
-                        <div class="card product-card h-100">
-                            <div class="product-img-wrapper">
-                                <img src="@(product.ThumbnailUrl ?? "/images/product-placeholder.png")" alt="@product.Name">
-                                <div class="product-actions">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="action-btn" title="@Localizer["ViewDetail"]">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <button class="action-btn" title="@Localizer["AddToCart"]">
-                                        <i class="bi bi-bag-plus"></i>
-                                    </button>
-                                </div>
-                                @if (product.SalePrice.HasValue)
-                                {
-                                    <span class="position-absolute top-0 start-0 m-3 badge bg-danger rounded-pill shadow-sm">-@((int)((1 - product.SalePrice / product.BasePrice) * 100))%</span>
-                                }
-                            </div>
-                            <div class="card-body text-center p-4">
-                                <div class="text-muted small mb-2 text-uppercase tracking-wide">@product.Category?.Name</div>
-                                <h6 class="fw-bold text-truncate mb-3 fs-5">
-                                    <a asp-controller="Products" asp-action="Detail" asp-route-slug="@product.Slug" class="text-dark text-decoration-none hover-link">@product.Name</a>
-                                </h6>
-                                <div class="d-flex justify-content-center align-items-center gap-2">
-                                    @if (product.SalePrice.HasValue)
-                                    {
-                                        <span class="text-muted text-decoration-line-through small">@product.BasePrice.ToString("N0")đ</span>
-                                        <span class="text-danger fw-bold fs-5">@product.SalePrice.Value.ToString("N0")đ</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="fw-bold fs-5 text-primary">@product.BasePrice.ToString("N0")đ</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-            
-            <div class="text-center mt-5">
-                <a asp-controller="Products" asp-action="Index" class="btn btn-outline-dark rounded-pill px-5 py-3 hover-lift">
-                    @Localizer["ViewAll"]
-                </a>
-            </div>
-        </div>
-    </section>
-}
 
 <!-- BEST SELLERS -->
 @if (Model.BestSellers.Any())
@@ -360,9 +300,9 @@
         <div class="position-relative z-1">
             <h2 class="fw-bold mb-3 text-white">@Localizer["NewsletterTitle"]</h2>
             <p class="text-white-50 mb-4 mx-auto" style="max-width: 500px;">@Localizer["NewsletterPromo"]</p>
-            <form class="d-flex justify-content-center gap-2 mx-auto" style="max-width: 450px;">
-                <input type="email" class="form-control form-control-lg rounded-pill px-4 border-0" placeholder="@Localizer["EmailPlaceholder"]">
-                <button class="btn btn-primary btn-lg rounded-pill px-4 hover-glow">@Localizer["Subscribe"]</button>
+            <form class="d-flex flex-wrap justify-content-center gap-3 mx-auto" style="max-width: 550px;">
+                <input type="email" class="form-control form-control-lg rounded-pill px-4 border-0 flex-grow-1" style="min-width: 250px;" placeholder="@Localizer["EmailPlaceholder"]">
+                <button class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-bold hover-glow">@Localizer["Subscribe"]</button>
             </form>
         </div>
         <!-- Decorative circle -->

@@ -8,11 +8,13 @@ namespace WearMate.Web.Controllers;
 public class ProductsController : Controller
 {
     private readonly ProductApiClient _productApi;
+    private readonly InventoryApiClient _inventoryApi;
     private readonly ILogger<ProductsController> _logger;
 
-    public ProductsController(ProductApiClient productApi, ILogger<ProductsController> logger)
+    public ProductsController(ProductApiClient productApi, InventoryApiClient inventoryApi, ILogger<ProductsController> logger)
     {
         _productApi = productApi;
+        _inventoryApi = inventoryApi;
         _logger = logger;
     }
 
@@ -101,6 +103,7 @@ public class ProductsController : Controller
                 var fallback = await _productApi.GetProductsAsync(
                     page: page, pageSize: 12,
                     categoryId: categoryId,
+                    brandId: brandId,
                     search: search
                 );
 
@@ -157,6 +160,28 @@ public class ProductsController : Controller
 
             // 4 GET IMAGES
             vm.Images = await _productApi.GetImagesAsync(product.Id) ?? new();
+
+            // 4b: availability per variant
+            var variantStocks = new List<ProductVariantWithStock>();
+            foreach (var v in vm.Variants.Where(v => v.IsActive))
+            {
+                var inventories = await _inventoryApi.GetInventoryByProductAsync(v.Id) ?? new();
+                var available = inventories.Any()
+                    ? inventories.Sum(i => i.AvailableQuantity)
+                    : v.StockQuantity;
+
+                variantStocks.Add(new ProductVariantWithStock
+                {
+                    Id = v.Id,
+                    Sku = v.Sku,
+                    Size = v.Size,
+                    Color = v.Color,
+                    PriceAdjustment = v.PriceAdjustment,
+                    IsActive = v.IsActive,
+                    Available = available
+                });
+            }
+            vm.VariantStocks = variantStocks;
 
             // 5 RELATED PRODUCTS theo category
             if (product.CategoryId.HasValue)
